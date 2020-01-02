@@ -22,81 +22,238 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
+#include "catch2/catch.hpp"
+
 #include <openspace/documentation/documentation.h>
 #include <openspace/documentation/documentationengine.h>
 #include <openspace/documentation/verifier.h>
-
 #include <ghoul/misc/dictionary.h>
-
 #include <string>
 
-class DocumentationTest : public testing::Test {};
-
-TEST_F(DocumentationTest, Constructor) {
+TEST_CASE("Documentation: Constructor", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc;
 
     // Basic Verifiers
-    doc.entries.emplace_back("BoolVerifier", new BoolVerifier, Optional::No);
-    doc.entries.emplace_back("DoubleVerifier", new DoubleVerifier, Optional::No);
-    doc.entries.emplace_back("IntVerifier", new IntVerifier, Optional::No);
-    doc.entries.emplace_back("StringVerifier", new StringVerifier, Optional::No);
-    doc.entries.emplace_back("TableVerifier", new TableVerifier, Optional::No);
+    doc.entries.emplace_back(
+        "BoolVerifier",
+        new BoolVerifier,
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "DoubleVerifier",
+        new DoubleVerifier,
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "IntVerifier",
+        new IntVerifier,
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "StringVerifier",
+        new StringVerifier,
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "TableVerifier",
+        new TableVerifier,
+        Optional::No
+    );
 
     // Operator Verifiers
-    doc.entries.emplace_back("LessDouble", new DoubleLessVerifier(0.0), Optional::No);
-    doc.entries.emplace_back("LessInt", new IntLessVerifier(0), Optional::No);
+    doc.entries.emplace_back(
+        "LessDouble",
+        new DoubleLessVerifier(0.0),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "LessInt",
+        new IntLessVerifier(0),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "LessEqualDouble",
+        new DoubleLessEqualVerifier(0.0),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "LessEqualInt",
+        new IntLessEqualVerifier(0),
+        Optional::No
+    );
 
-    doc.entries.emplace_back("LessEqualDouble", new DoubleLessEqualVerifier(0.0), Optional::No);
-    doc.entries.emplace_back("LessEqualInt", new IntLessEqualVerifier(0), Optional::No);
+    doc.entries.emplace_back(
+        "GreaterDouble",
+        new DoubleGreaterVerifier(0.0),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "GreaterInt",
+        new IntGreaterVerifier(0),
+        Optional::No
+    );
 
-    doc.entries.emplace_back("GreaterDouble", new DoubleGreaterVerifier(0.0), Optional::No);
-    doc.entries.emplace_back("GreaterInt", new IntGreaterVerifier(0), Optional::No);
+    doc.entries.emplace_back(
+        "GreaterEqualDouble",
+        new DoubleGreaterEqualVerifier(0.0),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "GreaterEqualInt",
+        new IntGreaterEqualVerifier(0),
+        Optional::No
+    );
 
-    doc.entries.emplace_back("GreaterEqualDouble", new DoubleGreaterEqualVerifier(0.0), Optional::No);
-    doc.entries.emplace_back("GreaterEqualInt", new IntGreaterEqualVerifier(0), Optional::No);
+    doc.entries.emplace_back(
+        "EqualBool",
+        new BoolEqualVerifier(false),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "EqualDouble",
+        new DoubleEqualVerifier(0.0),
+        Optional::No
+     );
+    doc.entries.emplace_back(
+        "EqualInt",
+        new IntEqualVerifier(0),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "EqualString",
+        new StringEqualVerifier(""),
+        Optional::No
+    );
 
-    doc.entries.emplace_back("EqualBool", new BoolEqualVerifier(false), Optional::No);
-    doc.entries.emplace_back("EqualDouble", new DoubleEqualVerifier(0.0), Optional::No);
-    doc.entries.emplace_back("EqualInt", new IntEqualVerifier(0), Optional::No);
-    doc.entries.emplace_back("EqualString", new StringEqualVerifier(""), Optional::No);
-
-    doc.entries.emplace_back("UnequalBool", new BoolUnequalVerifier(false), Optional::No);
-    doc.entries.emplace_back("UnequalDouble", new DoubleUnequalVerifier(0.0), Optional::No);
-    doc.entries.emplace_back("UnequalInt", new IntUnequalVerifier(0), Optional::No);
-    doc.entries.emplace_back("UnequalString", new StringUnequalVerifier(""), Optional::No);
+    doc.entries.emplace_back(
+        "UnequalBool",
+        new BoolUnequalVerifier(false),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "UnequalDouble",
+        new DoubleUnequalVerifier(0.0),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "UnequalInt",
+        new IntUnequalVerifier(0),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "UnequalString",
+        new StringUnequalVerifier(""),
+        Optional::No
+    );
 
     // List Verifiers
-    doc.entries.emplace_back("InListBool", new BoolInListVerifier({ true, false }), Optional::No);
-    doc.entries.emplace_back("InListDouble", new DoubleInListVerifier({ 0.0, 1.0}), Optional::No);
-    doc.entries.emplace_back("InListInt", new IntInListVerifier({ 0, 1 }), Optional::No);
-    doc.entries.emplace_back("InListString", new StringInListVerifier({ "", "a" }), Optional::No);
+    doc.entries.emplace_back(
+        "InListBool",
+        new BoolInListVerifier({ true, false }),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "InListDouble",
+        new DoubleInListVerifier({ 0.0, 1.0}),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "InListInt",
+        new IntInListVerifier({ 0, 1 }),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "InListString",
+        new StringInListVerifier({ "", "a" }),
+        Optional::No
+    );
 
-    doc.entries.emplace_back("NotInListBool", new BoolNotInListVerifier({ true, false }), Optional::No);
-    doc.entries.emplace_back("NotInListDouble", new DoubleNotInListVerifier({ 0.0, 1.0 }), Optional::No);
-    doc.entries.emplace_back("NotInListInt", new IntNotInListVerifier({ 0, 1 }), Optional::No);
-    doc.entries.emplace_back("NotInListString", new StringNotInListVerifier({ "", "a" }), Optional::No);
+    doc.entries.emplace_back(
+        "NotInListBool",
+        new BoolNotInListVerifier({ true, false }),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "NotInListDouble",
+        new DoubleNotInListVerifier({ 0.0, 1.0 }),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "NotInListInt",
+        new IntNotInListVerifier({ 0, 1 }),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "NotInListString",
+        new StringNotInListVerifier({ "", "a" }),
+        Optional::No
+    );
 
-    doc.entries.emplace_back("StringListVerifier", new StringListVerifier, Optional::No);
-    doc.entries.emplace_back("IntListVerifier", new IntListVerifier, Optional::No);
+    doc.entries.emplace_back(
+        "StringListVerifier",
+        new StringListVerifier,
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "IntListVerifier",
+        new IntListVerifier,
+        Optional::No
+    );
 
     // Range Verifiers
-    doc.entries.emplace_back("InListDouble", new DoubleInRangeVerifier({ 0.0, 1.0 }), Optional::No);
-    doc.entries.emplace_back("InListInt", new IntInRangeVerifier({ 0, 1 }), Optional::No);
+    doc.entries.emplace_back(
+        "InListDouble",
+        new DoubleInRangeVerifier({ 0.0, 1.0 }),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "InListInt",
+        new IntInRangeVerifier({ 0, 1 }),
+        Optional::No
+    );
 
-    doc.entries.emplace_back("NotInListDouble", new DoubleNotInRangeVerifier({ 0.0, 1.0 }), Optional::No);
-    doc.entries.emplace_back("NotInListInt", new IntNotInRangeVerifier({ 0, 1 }), Optional::No);
+    doc.entries.emplace_back(
+        "NotInListDouble",
+        new DoubleNotInRangeVerifier({ 0.0, 1.0 }),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "NotInListInt",
+        new IntNotInRangeVerifier({ 0, 1 }),
+        Optional::No
+    );
 
     // Misc Verifiers
-    doc.entries.emplace_back("AnnotationBool", new BoolAnnotationVerifier("Bool"), Optional::No);
-    doc.entries.emplace_back("AnnotationDouble", new DoubleAnnotationVerifier("Double"), Optional::No);
-    doc.entries.emplace_back("AnnotationInt", new IntAnnotationVerifier("Int"), Optional::No);
-    doc.entries.emplace_back("AnnotationString", new StringAnnotationVerifier("String"), Optional::No);
-    doc.entries.emplace_back("AnnotationTable", new TableAnnotationVerifier("Table"), Optional::No);
+    doc.entries.emplace_back(
+        "AnnotationBool",
+        new BoolAnnotationVerifier("Bool"),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "AnnotationDouble",
+        new DoubleAnnotationVerifier("Double"),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "AnnotationInt",
+        new IntAnnotationVerifier("Int"),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "AnnotationString",
+        new StringAnnotationVerifier("String"),
+        Optional::No
+    );
+    doc.entries.emplace_back(
+        "AnnotationTable",
+        new TableAnnotationVerifier("Table"),
+        Optional::No
+    );
 }
 
-TEST_F(DocumentationTest, InitializerConstructor) {
+TEST_CASE("Documentation: Initializer Constructor", "[documentation]") {
     using namespace openspace::documentation;
     
     Documentation doc {
@@ -159,7 +316,7 @@ TEST_F(DocumentationTest, InitializerConstructor) {
     };
 }
 
-TEST_F(DocumentationTest, BoolVerifier) {
+TEST_CASE("Documentation: BoolVerifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -171,30 +328,30 @@ TEST_F(DocumentationTest, BoolVerifier) {
     };
 
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Bool", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+
     ghoul::Dictionary negativeExist {
-        { "Bool2", 0}
+        { "Bool2", 0 }
     };
     negativeRes = testSpecification(doc, negativeExist);
 
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, DoubleVerifier) {
+TEST_CASE("Documentation: DoubleVerifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -206,30 +363,30 @@ TEST_F(DocumentationTest, DoubleVerifier) {
     };
 
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 0 }
     };
 
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeExist{
         { "Double2" , 0.0 }
     };
     negativeRes = testSpecification(doc, negativeExist);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, IntVerifier) {
+TEST_CASE("Documentation: IntVerifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -240,37 +397,37 @@ TEST_F(DocumentationTest, IntVerifier) {
         { "Int", 0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Int", 0.0 }
     };
     positiveRes = testSpecification(doc, positive2);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 0.1 }
     };
 
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeExist {
         { "Int2", 0 }
     };
     negativeRes = testSpecification(doc, negativeExist);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, StringVerifier) {
+TEST_CASE("Documentation: StringVerifier", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -282,29 +439,29 @@ TEST_F(DocumentationTest, StringVerifier) {
         { "String", ""s }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "String", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("String", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "String");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeExist {
         { "String2", ""s }
     };
     negativeRes = testSpecification(doc, negativeExist);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("String", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "String");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, TableVerifierType) {
+TEST_CASE("Documentation: TableVerifierType", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -315,29 +472,29 @@ TEST_F(DocumentationTest, TableVerifierType) {
         { "Table", ghoul::Dictionary{} }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Table", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Table", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Table");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeExist {
         { "Table2", ghoul::Dictionary{} }
     };
     negativeRes = testSpecification(doc, negativeExist);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Table", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Table");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, StringListVerifierType) {
+TEST_CASE("Documentation: StringListVerifierType", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -356,17 +513,17 @@ TEST_F(DocumentationTest, StringListVerifierType) {
         }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "StringList", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("StringList", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "StringList");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         {
@@ -379,22 +536,22 @@ TEST_F(DocumentationTest, StringListVerifierType) {
         }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("StringList.3", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "StringList.3");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeExist {
         { "StringList2", ghoul::Dictionary{} }
     };
     negativeRes = testSpecification(doc, negativeExist);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("StringList", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "StringList");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, IntListVerifierType) {
+TEST_CASE("Documentation: IntListVerifierType", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -413,17 +570,17 @@ TEST_F(DocumentationTest, IntListVerifierType) {
         }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative{
         { "IntList", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("IntList", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "IntList");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         {
@@ -436,22 +593,22 @@ TEST_F(DocumentationTest, IntListVerifierType) {
         }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("IntList.1", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "IntList.1");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeExist {
         { "IntList2", ghoul::Dictionary{} }
     };
     negativeRes = testSpecification(doc, negativeExist);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("IntList", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "IntList");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, MixedVerifiers) {
+TEST_CASE("Documentation: MixedVerifiers", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -473,8 +630,8 @@ TEST_F(DocumentationTest, MixedVerifiers) {
         { "Table", ghoul::Dictionary{} }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative1 {
         { "Bool", true },
@@ -484,10 +641,10 @@ TEST_F(DocumentationTest, MixedVerifiers) {
         { "Table", ghoul::Dictionary{} }
     };
     TestResult negativeRes = testSpecification(doc, negative1);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "Bool", true },
@@ -497,15 +654,15 @@ TEST_F(DocumentationTest, MixedVerifiers) {
         { "Table", ghoul::Dictionary{} }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(2, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("String", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[1].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 2);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "String");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, NestedTables) {
+TEST_CASE("Documentation: NestedTables", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -543,8 +700,8 @@ TEST_F(DocumentationTest, NestedTables) {
         }}
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negativeSimple {
         { "Outer_Int", 1 },
@@ -559,10 +716,10 @@ TEST_F(DocumentationTest, NestedTables) {
         }}
     };
     TestResult negativeRes = testSpecification(doc, negativeSimple);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Outer_Table", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Outer_Table");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeInner {
         { "Outer_Int", 1 },
@@ -580,10 +737,10 @@ TEST_F(DocumentationTest, NestedTables) {
         }}
     };
     negativeRes = testSpecification(doc, negativeInner);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Outer_Table.Inner_Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Outer_Table.Inner_Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeInner2 {
         { "Outer_Int", 1 },
@@ -601,12 +758,12 @@ TEST_F(DocumentationTest, NestedTables) {
         }}
     };
     negativeRes = testSpecification(doc, negativeInner2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(2, negativeRes.offenses.size());
-    EXPECT_EQ("Outer_Table.Inner_Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("Outer_Table.Inner_String", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[1].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 2);
+    REQUIRE(negativeRes.offenses[0].offender == "Outer_Table.Inner_Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "Outer_Table.Inner_String");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeInnerSeparate {
         { "Outer_Int", 1 },
@@ -624,12 +781,12 @@ TEST_F(DocumentationTest, NestedTables) {
         }}
     };
     negativeRes = testSpecification(doc, negativeInnerSeparate);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(2, negativeRes.offenses.size());
-    EXPECT_EQ("Outer_Table.Inner_Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("Outer_Table2.Inner_Double2", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[1].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 2);
+    REQUIRE(negativeRes.offenses[0].offender == "Outer_Table.Inner_Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "Outer_Table2.Inner_Double2");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negativeInnerFull {
         { "Outer_Int", 1 },
@@ -647,17 +804,19 @@ TEST_F(DocumentationTest, NestedTables) {
         }}
     };
     negativeRes = testSpecification(doc, negativeInnerFull);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(3, negativeRes.offenses.size());
-    EXPECT_EQ("Outer_Table.Inner_Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("Outer_Table2.Inner_Double2", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[1].reason);
-    EXPECT_EQ("Outer_Table2.Inner_Table.Inner_Inner_Int", negativeRes.offenses[2].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[2].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 3);
+    REQUIRE(negativeRes.offenses[0].offender == "Outer_Table.Inner_Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "Outer_Table2.Inner_Double2");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(
+        negativeRes.offenses[2].offender == "Outer_Table2.Inner_Table.Inner_Inner_Int"
+    );
+    REQUIRE(negativeRes.offenses[2].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, Optional) {
+TEST_CASE("Documentation: Optional", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -668,49 +827,49 @@ TEST_F(DocumentationTest, Optional) {
     };
 
     ghoul::Dictionary positive {
-        { "Bool_Force", true },
+        { "Bool_Force", true }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Bool_Force", true },
         { "Bool_Optional", true }
     };
     positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
     
     ghoul::Dictionary negative {
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool_Force", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool_Force");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 
     ghoul::Dictionary negative2 {
         { "Bool_Optional", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool_Force", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool_Force");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 
     ghoul::Dictionary negative3 {
         { "Bool_Force", true },
         { "Bool_Optional", 1 }
     };
     negativeRes = testSpecification(doc, negative3);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool_Optional", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool_Optional");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, RequiredInOptional) {
+TEST_CASE("Documentation: Required In Optional", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -740,8 +899,8 @@ TEST_F(DocumentationTest, RequiredInOptional) {
         }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         {
@@ -752,26 +911,25 @@ TEST_F(DocumentationTest, RequiredInOptional) {
         }
     };
     positiveRes = testSpecification(doc, positive2);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive3 {};
     positiveRes = testSpecification(doc, positive3);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "c", 2 }}}
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a.b", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a.b");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-// Exhaustive documentations went away, but we are keeping this test just for funsies
-TEST_F(DocumentationTest, Exhaustive) {
+TEST_CASE("Documentation: Exhaustive", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -782,29 +940,29 @@ TEST_F(DocumentationTest, Exhaustive) {
         { "Int" , 1 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "False_Int", 1 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 
     ghoul::Dictionary negative2 {
         { "Double", 2.0 }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, NestedExhaustive) {
+TEST_CASE("Documentation: Nested Exhaustive", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -818,38 +976,38 @@ TEST_F(DocumentationTest, NestedExhaustive) {
         { "Table", ghoul::Dictionary{{ "a", 1 }}}
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Table", ghoul::Dictionary{{ "b", 2.0 }}}
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Table.a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::MissingKey, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Table.a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::MissingKey);
 }
 
-TEST_F(DocumentationTest, EmptyEntriesNonExhaustive) {
+TEST_CASE("Documentation: Empty Entries Non Exhaustive", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc;
 
     ghoul::Dictionary positive {};
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "a", 1 }
     };
     positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 }
 
-TEST_F(DocumentationTest, EmptyNestedExhaustive) {
+TEST_CASE("Documentation: Empty Nested Exhaustive", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -864,18 +1022,18 @@ TEST_F(DocumentationTest, EmptyNestedExhaustive) {
         { "Table", ghoul::Dictionary() }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Table", ghoul::Dictionary{ { "a", 1 }}}
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_TRUE(negativeRes.success);
-    ASSERT_EQ(0, negativeRes.offenses.size());
+    REQUIRE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.empty());
 }
 
-TEST_F(DocumentationTest, LessInt) {
+TEST_CASE("Documentation: Less Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -886,20 +1044,20 @@ TEST_F(DocumentationTest, LessInt) {
         { "Int", 0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 10 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, LessDouble) {
+TEST_CASE("Documentation: Less Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -910,20 +1068,20 @@ TEST_F(DocumentationTest, LessDouble) {
         { "Double", 0.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 10.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, LessEqualInt) {
+TEST_CASE("Documentation: LessEqual Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -934,27 +1092,27 @@ TEST_F(DocumentationTest, LessEqualInt) {
         { "Int", 0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positiveEqual {
         { "Int", 5 }
     };
     positiveRes = testSpecification(doc, positiveEqual);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 10 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, LessEqualDouble) {
+TEST_CASE("Documentation: LessEqual Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -965,27 +1123,27 @@ TEST_F(DocumentationTest, LessEqualDouble) {
         { "Double", 0.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positiveEqual {
         { "Double", 5.0 }
     };
     positiveRes = testSpecification(doc, positiveEqual);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 10.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, GreaterInt) {
+TEST_CASE("Documentation: Greater Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -996,20 +1154,20 @@ TEST_F(DocumentationTest, GreaterInt) {
         { "Int", 10 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, GreaterDouble) {
+TEST_CASE("Documentation: Greater Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1020,20 +1178,20 @@ TEST_F(DocumentationTest, GreaterDouble) {
         { "Double", 10.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 0.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, GreaterEqualInt) {
+TEST_CASE("Documentation: GreaterEqual Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1044,27 +1202,27 @@ TEST_F(DocumentationTest, GreaterEqualInt) {
         { "Int", 10 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positiveEqual {
         { "Int", 5 }
     };
     positiveRes = testSpecification(doc, positiveEqual);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, GreaterEqualDouble) {
+TEST_CASE("Documentation: GreaterEqual Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1075,27 +1233,27 @@ TEST_F(DocumentationTest, GreaterEqualDouble) {
         { "Double", 10.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positiveEqual {
         { "Double", 5.0 }
     };
     positiveRes = testSpecification(doc, positiveEqual);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 0.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, EqualBool) {
+TEST_CASE("Documentation: Equal Bool", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1106,20 +1264,20 @@ TEST_F(DocumentationTest, EqualBool) {
         { "Bool", true}
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Bool", false }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, EqualInt) {
+TEST_CASE("Documentation: Equal Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1130,20 +1288,20 @@ TEST_F(DocumentationTest, EqualInt) {
         { "Int", 1}
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, EqualDouble) {
+TEST_CASE("Documentation: Equal Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1154,20 +1312,20 @@ TEST_F(DocumentationTest, EqualDouble) {
         { "Double", 1.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 0.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, EqualString) {
+TEST_CASE("Documentation: Equal String", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -1179,20 +1337,20 @@ TEST_F(DocumentationTest, EqualString) {
         { "String", "string"s }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "String", "no_string"s }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("String", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "String");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, UnequalBool) {
+TEST_CASE("Documentation: Unequal Bool", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1203,20 +1361,20 @@ TEST_F(DocumentationTest, UnequalBool) {
         { "Bool", false }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Bool", true }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, UnequalInt) {
+TEST_CASE("Documentation: Unequal Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1227,20 +1385,20 @@ TEST_F(DocumentationTest, UnequalInt) {
         { "Int", 0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 1 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, UnequalDouble) {
+TEST_CASE("Documentation: Unequal Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1251,20 +1409,20 @@ TEST_F(DocumentationTest, UnequalDouble) {
         { "Double", 0.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 1.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, UnequalString) {
+TEST_CASE("Documentation: Unequal String", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -1276,20 +1434,20 @@ TEST_F(DocumentationTest, UnequalString) {
         { "String", "no_string"s }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "String", "string"s }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("String", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "String");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, ListBool) {
+TEST_CASE("Documentation: List Bool", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1300,20 +1458,20 @@ TEST_F(DocumentationTest, ListBool) {
         { "Bool", true }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Bool", false }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, ListInt) {
+TEST_CASE("Documentation: List Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1324,27 +1482,27 @@ TEST_F(DocumentationTest, ListInt) {
         { "Int", 1 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Int", 2 }
     };
     positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 5 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, ListDouble) {
+TEST_CASE("Documentation: List Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1355,27 +1513,27 @@ TEST_F(DocumentationTest, ListDouble) {
         { "Double", 1.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Double", 2.0 }
     };
     positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 5.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, ListString) {
+TEST_CASE("Documentation: List String", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -1387,27 +1545,27 @@ TEST_F(DocumentationTest, ListString) {
         { "String", "1"s }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "String", "2"s }
     };
     positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "String", "5"s }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("String", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "String");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, NotListBool) {
+TEST_CASE("Documentation: NotList Bool", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1418,20 +1576,20 @@ TEST_F(DocumentationTest, NotListBool) {
         { "Bool", false }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Bool", true }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, NotListInt) {
+TEST_CASE("Documentation: NotList Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1442,27 +1600,27 @@ TEST_F(DocumentationTest, NotListInt) {
         { "Int", -1 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Int", 3 }
     };
     positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 2 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, NotListDouble) {
+TEST_CASE("Documentation: NotList Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1473,27 +1631,27 @@ TEST_F(DocumentationTest, NotListDouble) {
         { "Double", -1.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Double", 3.0 }
     };
     positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 1.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, NotListString) {
+TEST_CASE("Documentation: NotList String", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -1505,27 +1663,27 @@ TEST_F(DocumentationTest, NotListString) {
         { "String", "string"s }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "String", "foo_string"s }
     };
     positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "String", "1"s }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("String", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "String");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, AnnotationBool) {
+TEST_CASE("Documentation: Annotation Bool", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1536,20 +1694,20 @@ TEST_F(DocumentationTest, AnnotationBool) {
         { "Bool", true }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Bool", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Bool", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Bool");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, AnnotationInt) {
+TEST_CASE("Documentation: Annotation Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1560,20 +1718,20 @@ TEST_F(DocumentationTest, AnnotationInt) {
         { "Int", 1 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 1.1 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, AnnotationDouble) {
+TEST_CASE("Documentation: Annotation Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1584,20 +1742,20 @@ TEST_F(DocumentationTest, AnnotationDouble) {
         { "Double", 0.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", true }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, AnnotationString) {
+TEST_CASE("Documentation: Annotation String", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -1609,20 +1767,20 @@ TEST_F(DocumentationTest, AnnotationString) {
         { "String", ""s }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "String", 1 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("String", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "String");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, AnnotationTable) {
+TEST_CASE("Documentation: Annotation Table", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1633,20 +1791,20 @@ TEST_F(DocumentationTest, AnnotationTable) {
         { "Table", ghoul::Dictionary{} }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Table", 1 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Table", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Table");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, InRangeInt) {
+TEST_CASE("Documentation: InRange Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1657,34 +1815,34 @@ TEST_F(DocumentationTest, InRangeInt) {
         { "Int", 2 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Int", 0 }
     };
     positiveRes = testSpecification(doc, positive2);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive3 {
         { "Int", 5 }
     };
     positiveRes = testSpecification(doc, positive3);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 10 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, InRangeDouble) {
+TEST_CASE("Documentation: InRange Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1695,41 +1853,41 @@ TEST_F(DocumentationTest, InRangeDouble) {
         { "Double", 2.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Double", 0.0 }
     };
     positiveRes = testSpecification(doc, positive2);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive3 {
         { "Double", 5.0 }
     };
     positiveRes = testSpecification(doc, positive3);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive4 {
         { "Double", 1.5 }
     };
     positiveRes = testSpecification(doc, positive4);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 10.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, NotInRangeInt) {
+TEST_CASE("Documentation: NotInRange Int", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1740,45 +1898,45 @@ TEST_F(DocumentationTest, NotInRangeInt) {
         { "Int", -1 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Int", 6 }
     };
     positiveRes = testSpecification(doc, positive2);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Int", 2 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 
     ghoul::Dictionary negative2 {
         { "Int", 0 }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 
     ghoul::Dictionary negative3 {
         { "Int", 5 }
     };
     negativeRes = testSpecification(doc, negative3);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Int", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Int");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, NotInRangeDouble) {
+TEST_CASE("Documentation: NotInRange Double", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1789,45 +1947,45 @@ TEST_F(DocumentationTest, NotInRangeDouble) {
         { "Double", -1.0 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "Double", 6.0 }
     };
     positiveRes = testSpecification(doc, positive2);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Double", 0.0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 
     ghoul::Dictionary negative2 {
         { "Double", 5.0 }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 
     ghoul::Dictionary negative3 {
         { "Double", 2.5 }
     };
     negativeRes = testSpecification(doc, negative3);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Double", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Double");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, Wildcard) {
+TEST_CASE("Documentation: Wildcard", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1840,8 +1998,8 @@ TEST_F(DocumentationTest, Wildcard) {
         { "c", 3 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", false },
@@ -1849,10 +2007,10 @@ TEST_F(DocumentationTest, Wildcard) {
         { "c", 3 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", false },
@@ -1860,12 +2018,12 @@ TEST_F(DocumentationTest, Wildcard) {
         { "c", 3 }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(2, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("b", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[1].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 2);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "b");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative3 {
         { "a", false },
@@ -1873,17 +2031,17 @@ TEST_F(DocumentationTest, Wildcard) {
         { "c", false }
     };
     negativeRes = testSpecification(doc, negative3);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(3, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("b", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[1].reason);
-    EXPECT_EQ("c", negativeRes.offenses[2].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[2].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 3);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "b");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[2].offender == "c");
+    REQUIRE(negativeRes.offenses[2].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, WildcardMixed) {
+TEST_CASE("Documentation: Wildcard Mixed", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -1899,8 +2057,8 @@ TEST_F(DocumentationTest, WildcardMixed) {
         { "c", 3 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", false },
@@ -1908,12 +2066,12 @@ TEST_F(DocumentationTest, WildcardMixed) {
         { "c", 3 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(2, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("b", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[1].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 2);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "b");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::Verification);
 
     ghoul::Dictionary negative2 {
         { "a", false },
@@ -1921,12 +2079,12 @@ TEST_F(DocumentationTest, WildcardMixed) {
         { "c", 3 }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(2, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("b", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[1].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 2);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "b");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative3 {
         { "a", false },
@@ -1934,14 +2092,14 @@ TEST_F(DocumentationTest, WildcardMixed) {
         { "c", false }
     };
     negativeRes = testSpecification(doc, negative3);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(3, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("b", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[1].reason);
-    EXPECT_EQ("c", negativeRes.offenses[2].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[2].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 3);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "b");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::Verification);
+    REQUIRE(negativeRes.offenses[2].offender == "c");
+    REQUIRE(negativeRes.offenses[2].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative4 {
         { "a", false },
@@ -1949,15 +2107,15 @@ TEST_F(DocumentationTest, WildcardMixed) {
         { "c", false }
     };
     negativeRes = testSpecification(doc, negative4);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(2, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
-    EXPECT_EQ("c", negativeRes.offenses[1].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[1].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 2);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
+    REQUIRE(negativeRes.offenses[1].offender == "c");
+    REQUIRE(negativeRes.offenses[1].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, Referencing) {
+TEST_CASE("Documentation: Referencing", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation referenced {
@@ -1979,26 +2137,26 @@ TEST_F(DocumentationTest, Referencing) {
     };
 
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "Table", 1 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Table", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Table");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "Table", ghoul::Dictionary{ { "a", 1 }, { "b", true }}}
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Table.b", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Table.b");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
 
     Documentation wrongDoc {{
@@ -2008,17 +2166,15 @@ TEST_F(DocumentationTest, Referencing) {
         { "Table", ghoul::Dictionary{ { "a", 1 },{ "b", 2.0 } } }
     };
     negativeRes = testSpecification(wrongDoc, wrongNegative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("Table", negativeRes.offenses[0].offender);
-    EXPECT_EQ(
-        TestResult::Offense::Reason::UnknownIdentifier,
-        negativeRes.offenses[0].reason
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "Table");
+    REQUIRE(
+        negativeRes.offenses[0].reason == TestResult::Offense::Reason::UnknownIdentifier
     );
 }
 
-
-TEST_F(DocumentationTest, AndOperator) {
+TEST_CASE("Documentation: AndOperator", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2037,29 +2193,29 @@ TEST_F(DocumentationTest, AndOperator) {
         { "a", 4 }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", 0 }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 
     ghoul::Dictionary negative2 {
         { "a", 8 }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, OrOperator) {
+TEST_CASE("Documentation: OrOperator", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -2071,27 +2227,27 @@ TEST_F(DocumentationTest, OrOperator) {
         { "a", ""s }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary positive2 {
         { "a", 1 }
     };
     positiveRes = testSpecification(doc, positive2);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", false }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::Verification, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::Verification);
 }
 
-TEST_F(DocumentationTest, BoolVector2Verifier) {
+TEST_CASE("Documentation: BoolVector2Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2102,29 +2258,29 @@ TEST_F(DocumentationTest, BoolVector2Verifier) {
         { "a", glm::bvec2(true) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true }, { "2", 1.0 } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, IntVector2Verifier) {
+TEST_CASE("Documentation: IntVector2Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2135,29 +2291,29 @@ TEST_F(DocumentationTest, IntVector2Verifier) {
         { "a", glm::ivec2(2) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1 } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleVector2Verifier) {
+TEST_CASE("Documentation: DoubleVector2Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2168,29 +2324,29 @@ TEST_F(DocumentationTest, DoubleVector2Verifier) {
         { "a", glm::dvec2(2.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true }, { "2", 1.0 } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, BoolVector3Verifier) {
+TEST_CASE("Documentation: BoolVector3Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2201,29 +2357,29 @@ TEST_F(DocumentationTest, BoolVector3Verifier) {
         { "a", glm::bvec3(true) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 }, { "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, IntVector3Verifier) {
+TEST_CASE("Documentation: IntVector3Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2234,29 +2390,29 @@ TEST_F(DocumentationTest, IntVector3Verifier) {
         { "a", glm::ivec3(2) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1 }, { "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleVector3Verifier) {
+TEST_CASE("Documentation: DoubleVector3Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2267,29 +2423,29 @@ TEST_F(DocumentationTest, DoubleVector3Verifier) {
         { "a", glm::dvec3(2.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 }, { "3", "s"} } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, BoolVector4Verifier) {
+TEST_CASE("Documentation: BoolVector4Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2300,29 +2456,29 @@ TEST_F(DocumentationTest, BoolVector4Verifier) {
         { "a", glm::bvec4(true) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 }, { "3", "s" }, { "4", 1 }}}
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, IntVector4Verifier) {
+TEST_CASE("Documentation: IntVector4Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2333,29 +2489,29 @@ TEST_F(DocumentationTest, IntVector4Verifier) {
         { "a", glm::ivec4(2) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1 },{ "3", "s" }, { "4", 1 } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2{
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleVector4Verifier) {
+TEST_CASE("Documentation: DoubleVector4Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2366,29 +2522,29 @@ TEST_F(DocumentationTest, DoubleVector4Verifier) {
         { "a", glm::dvec4(2.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" }, { "4", 1 } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix2x2Verifier) {
+TEST_CASE("Documentation: DoubleMatrix2x2Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2399,29 +2555,29 @@ TEST_F(DocumentationTest, DoubleMatrix2x2Verifier) {
         { "a", glm::dmat2x2(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary { { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix2x3Verifier) {
+TEST_CASE("Documentation: DoubleMatrix2x3Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2432,29 +2588,29 @@ TEST_F(DocumentationTest, DoubleMatrix2x3Verifier) {
         { "a", glm::dmat2x3(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix2x4Verifier) {
+TEST_CASE("Documentation: DoubleMatrix2x4Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2465,29 +2621,29 @@ TEST_F(DocumentationTest, DoubleMatrix2x4Verifier) {
         { "a", glm::dmat2x4(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix3x2Verifier) {
+TEST_CASE("Documentation: DoubleMatrix3x2Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2498,29 +2654,29 @@ TEST_F(DocumentationTest, DoubleMatrix3x2Verifier) {
         { "a", glm::dmat3x2(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix3x3Verifier) {
+TEST_CASE("Documentation: DoubleMatrix3x3Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2531,29 +2687,29 @@ TEST_F(DocumentationTest, DoubleMatrix3x3Verifier) {
         { "a", glm::dmat3x3(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix3x4Verifier) {
+TEST_CASE("Documentation: DoubleMatrix3x4Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2564,29 +2720,29 @@ TEST_F(DocumentationTest, DoubleMatrix3x4Verifier) {
         { "a", glm::dmat3x4(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix4x2Verifier) {
+TEST_CASE("Documentation: DoubleMatrix4x2Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2597,29 +2753,29 @@ TEST_F(DocumentationTest, DoubleMatrix4x2Verifier) {
         { "a", glm::dmat4x2(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix4x3Verifier) {
+TEST_CASE("Documentation: DoubleMatrix4x3Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2630,29 +2786,29 @@ TEST_F(DocumentationTest, DoubleMatrix4x3Verifier) {
         { "a", glm::dmat4x3(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DoubleMatrix4x4Verifier) {
+TEST_CASE("Documentation: DoubleMatrix4x4Verifier", "[documentation]") {
     using namespace openspace::documentation;
 
     Documentation doc {
@@ -2663,29 +2819,29 @@ TEST_F(DocumentationTest, DoubleMatrix4x4Verifier) {
         { "a", glm::dmat4x4(1.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
 
     ghoul::Dictionary negative {
         { "a", ghoul::Dictionary{ { "1", true },{ "2", 1.0 },{ "3", "s" } } }
     };
     TestResult negativeRes = testSpecification(doc, negative);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 
     ghoul::Dictionary negative2 {
         { "a", true }
     };
     negativeRes = testSpecification(doc, negative2);
-    EXPECT_FALSE(negativeRes.success);
-    ASSERT_EQ(1, negativeRes.offenses.size());
-    EXPECT_EQ("a", negativeRes.offenses[0].offender);
-    EXPECT_EQ(TestResult::Offense::Reason::WrongType, negativeRes.offenses[0].reason);
+    REQUIRE_FALSE(negativeRes.success);
+    REQUIRE(negativeRes.offenses.size() == 1);
+    REQUIRE(negativeRes.offenses[0].offender == "a");
+    REQUIRE(negativeRes.offenses[0].reason == TestResult::Offense::Reason::WrongType);
 }
 
-TEST_F(DocumentationTest, DeprecatedVerifier) {
+TEST_CASE("Documentation: DeprecatedVerifier", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
@@ -2721,204 +2877,203 @@ TEST_F(DocumentationTest, DeprecatedVerifier) {
         { "doublevec4", glm::dvec4(0.0) }
     };
     TestResult positiveRes = testSpecification(doc, positive);
-    EXPECT_TRUE(positiveRes.success);
-    EXPECT_EQ(0, positiveRes.offenses.size());
-    ASSERT_EQ(13, positiveRes.warnings.size());
-    EXPECT_EQ("bool", positiveRes.warnings[0].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[0].reason);
-    EXPECT_EQ("boolvec2", positiveRes.warnings[1].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[1].reason);
-    EXPECT_EQ("boolvec3", positiveRes.warnings[2].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[2].reason);
-    EXPECT_EQ("boolvec4", positiveRes.warnings[3].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[3].reason);
-    EXPECT_EQ("double", positiveRes.warnings[4].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[4].reason);
-    EXPECT_EQ("doublevec2", positiveRes.warnings[5].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[5].reason);
-    EXPECT_EQ("doublevec3", positiveRes.warnings[6].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[6].reason);
-    EXPECT_EQ("doublevec4", positiveRes.warnings[7].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[7].reason);
-    EXPECT_EQ("int", positiveRes.warnings[8].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[8].reason);
-    EXPECT_EQ("intvec2", positiveRes.warnings[9].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[9].reason);
-    EXPECT_EQ("intvec3", positiveRes.warnings[10].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[10].reason);
-    EXPECT_EQ("intvec4", positiveRes.warnings[11].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[11].reason);
-    EXPECT_EQ("string", positiveRes.warnings[12].offender);
-    EXPECT_EQ(TestResult::Warning::Reason::Deprecated, positiveRes.warnings[12].reason);
+    REQUIRE(positiveRes.success);
+    REQUIRE(positiveRes.offenses.empty());
+    REQUIRE(positiveRes.warnings.size() == 13);
+    REQUIRE(positiveRes.warnings[0].offender == "bool");
+    REQUIRE(positiveRes.warnings[0].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[1].offender == "boolvec2");
+    REQUIRE(positiveRes.warnings[1].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[2].offender == "boolvec3");
+    REQUIRE(positiveRes.warnings[2].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[3].offender == "boolvec4");
+    REQUIRE(positiveRes.warnings[3].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[4].offender == "double");
+    REQUIRE(positiveRes.warnings[4].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[5].offender == "doublevec2");
+    REQUIRE(positiveRes.warnings[5].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[6].offender == "doublevec3");
+    REQUIRE(positiveRes.warnings[6].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[7].offender == "doublevec4");
+    REQUIRE(positiveRes.warnings[7].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[8].offender == "int");
+    REQUIRE(positiveRes.warnings[8].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[9].offender == "intvec2");
+    REQUIRE(positiveRes.warnings[9].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[10].offender == "intvec3");
+    REQUIRE(positiveRes.warnings[10].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[11].offender == "intvec4");
+    REQUIRE(positiveRes.warnings[11].reason == TestResult::Warning::Reason::Deprecated);
+    REQUIRE(positiveRes.warnings[12].offender == "string");
+    REQUIRE(positiveRes.warnings[12].reason == TestResult::Warning::Reason::Deprecated);
 }
 
-TEST_F(DocumentationTest, VerifierTypePostConditions) {
+TEST_CASE("Documentation: Verifier Type Post Conditions", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
-    EXPECT_NE("", BoolVerifier().type());
-    EXPECT_NE("", DoubleVerifier().type());
-    EXPECT_NE("", IntVerifier().type());
-    EXPECT_NE("", StringVerifier().type());
-    EXPECT_NE("", TableVerifier().type());
+    REQUIRE(BoolVerifier().type() != "");
+    REQUIRE(DoubleVerifier().type() != "");
+    REQUIRE(IntVerifier().type() != "");
+    REQUIRE(StringVerifier().type() != "");
+    REQUIRE(TableVerifier().type() != "");
 
-    EXPECT_NE("", BoolVector2Verifier().type());
-    EXPECT_NE("", IntVector2Verifier().type());
-    EXPECT_NE("", DoubleVector2Verifier().type());
-    EXPECT_NE("", BoolVector3Verifier().type());
-    EXPECT_NE("", IntVector3Verifier().type());
-    EXPECT_NE("", DoubleVector3Verifier().type());
-    EXPECT_NE("", BoolVector4Verifier().type());
-    EXPECT_NE("", IntVector4Verifier().type());
-    EXPECT_NE("", DoubleVector4Verifier().type());
+    REQUIRE(BoolVector2Verifier().type() != "");
+    REQUIRE(IntVector2Verifier().type() != "");
+    REQUIRE(DoubleVector2Verifier().type() != "");
+    REQUIRE(BoolVector3Verifier().type() != "");
+    REQUIRE(IntVector3Verifier().type() != "");
+    REQUIRE(DoubleVector3Verifier().type() != "");
+    REQUIRE(BoolVector4Verifier().type() != "");
+    REQUIRE(IntVector4Verifier().type() != "");
+    REQUIRE(DoubleVector4Verifier().type() != "");
 
-    EXPECT_NE("", IntLessVerifier(0).type());
-    EXPECT_NE("", DoubleLessVerifier(0.0).type());
-    EXPECT_NE("", IntLessEqualVerifier(0).type());
-    EXPECT_NE("", DoubleLessEqualVerifier(0.0).type());
-    EXPECT_NE("", IntGreaterVerifier(0).type());
-    EXPECT_NE("", DoubleGreaterVerifier(0.0).type());
-    EXPECT_NE("", IntGreaterEqualVerifier(0).type());
-    EXPECT_NE("", DoubleGreaterEqualVerifier(0.0).type());
+    REQUIRE(IntLessVerifier(0).type() != "");
+    REQUIRE(DoubleLessVerifier(0.0).type() != "");
+    REQUIRE(IntLessEqualVerifier(0).type() != "");
+    REQUIRE(DoubleLessEqualVerifier(0.0).type() != "");
+    REQUIRE(IntGreaterVerifier(0).type() != "");
+    REQUIRE(DoubleGreaterVerifier(0.0).type() != "");
+    REQUIRE(IntGreaterEqualVerifier(0).type() != "");
+    REQUIRE(DoubleGreaterEqualVerifier(0.0).type() != "");
 
-    EXPECT_NE("", BoolEqualVerifier(true).type());
-    EXPECT_NE("", IntEqualVerifier(0).type());
-    EXPECT_NE("", DoubleEqualVerifier(0.0).type());
-    EXPECT_NE("", StringEqualVerifier(""s).type());
-    EXPECT_NE("", BoolUnequalVerifier(true).type());
-    EXPECT_NE("", IntUnequalVerifier(0).type());
-    EXPECT_NE("", DoubleUnequalVerifier(0.0).type());
-    EXPECT_NE("", StringUnequalVerifier(""s).type());
+    REQUIRE(BoolEqualVerifier(true).type() != "");
+    REQUIRE(IntEqualVerifier(0).type() != "");
+    REQUIRE(DoubleEqualVerifier(0.0).type() != "");
+    REQUIRE(StringEqualVerifier(""s).type() != "");
+    REQUIRE(BoolUnequalVerifier(true).type() != "");
+    REQUIRE(IntUnequalVerifier(0).type() != "");
+    REQUIRE(DoubleUnequalVerifier(0.0).type() != "");
+    REQUIRE(StringUnequalVerifier(""s).type() != "");
 
-    EXPECT_NE("", BoolInListVerifier({ true }).type());
-    EXPECT_NE("", IntInListVerifier({ 0 }).type());
-    EXPECT_NE("", DoubleInListVerifier({ 0.0 }).type());
-    EXPECT_NE("", StringInListVerifier({ ""s }).type());
-    EXPECT_NE("", BoolNotInListVerifier({ true }).type());
-    EXPECT_NE("", IntNotInListVerifier({ 0 }).type());
-    EXPECT_NE("", DoubleNotInListVerifier({ 0.0 }).type());
-    EXPECT_NE("", StringNotInListVerifier({ ""s }).type());
+    REQUIRE(BoolInListVerifier({ true }).type() != "");
+    REQUIRE(IntInListVerifier({ 0 }).type() != "");
+    REQUIRE(DoubleInListVerifier({ 0.0 }).type() != "");
+    REQUIRE(StringInListVerifier({ ""s }).type() != "");
+    REQUIRE(BoolNotInListVerifier({ true }).type() != "");
+    REQUIRE(IntNotInListVerifier({ 0 }).type() != "");
+    REQUIRE(DoubleNotInListVerifier({ 0.0 }).type() != "");
+    REQUIRE(StringNotInListVerifier({ ""s }).type() != "");
 
-    EXPECT_NE("", IntInRangeVerifier({ 0, 1 }).type());
-    EXPECT_NE("", DoubleInRangeVerifier({ 0.0, 1.0 }).type());
-    EXPECT_NE("", IntNotInRangeVerifier({ 0, 1 }).type());
-    EXPECT_NE("", DoubleNotInRangeVerifier({ 0.0, 1.0 }).type());
+    REQUIRE(IntInRangeVerifier({ 0, 1 }).type() != "");
+    REQUIRE(DoubleInRangeVerifier({ 0.0, 1.0 }).type() != "");
+    REQUIRE(IntNotInRangeVerifier({ 0, 1 }).type() != "");
+    REQUIRE(DoubleNotInRangeVerifier({ 0.0, 1.0 }).type() != "");
 
-    EXPECT_NE("", BoolAnnotationVerifier("A"s).type());
-    EXPECT_NE("", IntAnnotationVerifier("A"s).type());
-    EXPECT_NE("", DoubleAnnotationVerifier("A"s).type());
-    EXPECT_NE("", StringAnnotationVerifier("A"s).type());
-    EXPECT_NE("", TableAnnotationVerifier("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<BoolVector2Verifier>("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<IntVector2Verifier>("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<DoubleVector2Verifier>("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<BoolVector3Verifier>("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<IntVector3Verifier>("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<DoubleVector3Verifier>("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<BoolVector4Verifier>("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<IntVector4Verifier>("A"s).type());
-    EXPECT_NE("", AnnotationVerifier<DoubleVector4Verifier>("A"s).type());
+    REQUIRE(BoolAnnotationVerifier("A"s).type() != "");
+    REQUIRE(IntAnnotationVerifier("A"s).type() != "");
+    REQUIRE(DoubleAnnotationVerifier("A"s).type() != "");
+    REQUIRE(StringAnnotationVerifier("A"s).type() != "");
+    REQUIRE(TableAnnotationVerifier("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<BoolVector2Verifier>("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<IntVector2Verifier>("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<DoubleVector2Verifier>("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<BoolVector3Verifier>("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<IntVector3Verifier>("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<DoubleVector3Verifier>("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<BoolVector4Verifier>("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<IntVector4Verifier>("A"s).type() != "");
+    REQUIRE(AnnotationVerifier<DoubleVector4Verifier>("A"s).type() != "");
 
-    EXPECT_NE("", BoolDeprecatedVerifier().type());
-    EXPECT_NE("", IntDeprecatedVerifier().type());
-    EXPECT_NE("", DoubleDeprecatedVerifier().type());
-    EXPECT_NE("", StringDeprecatedVerifier().type());
-    EXPECT_NE("", TableDeprecatedVerifier().type());
-    EXPECT_NE("", DeprecatedVerifier<BoolVector2Verifier>().type());
-    EXPECT_NE("", DeprecatedVerifier<IntVector2Verifier>().type());
-    EXPECT_NE("", DeprecatedVerifier<DoubleVector2Verifier>().type());
-    EXPECT_NE("", DeprecatedVerifier<BoolVector3Verifier>().type());
-    EXPECT_NE("", DeprecatedVerifier<IntVector3Verifier>().type());
-    EXPECT_NE("", DeprecatedVerifier<DoubleVector3Verifier>().type());
-    EXPECT_NE("", DeprecatedVerifier<BoolVector4Verifier>().type());
-    EXPECT_NE("", DeprecatedVerifier<IntVector4Verifier>().type());
-    EXPECT_NE("", DeprecatedVerifier<DoubleVector4Verifier>().type());
+    REQUIRE(BoolDeprecatedVerifier().type() != "");
+    REQUIRE(IntDeprecatedVerifier().type() != "");
+    REQUIRE(DoubleDeprecatedVerifier().type() != "");
+    REQUIRE(StringDeprecatedVerifier().type() != "");
+    REQUIRE(TableDeprecatedVerifier().type() != "");
+    REQUIRE(DeprecatedVerifier<BoolVector2Verifier>().type() != "");
+    REQUIRE(DeprecatedVerifier<IntVector2Verifier>().type() != "");
+    REQUIRE(DeprecatedVerifier<DoubleVector2Verifier>().type() != "");
+    REQUIRE(DeprecatedVerifier<BoolVector3Verifier>().type() != "");
+    REQUIRE(DeprecatedVerifier<IntVector3Verifier>().type() != "");
+    REQUIRE(DeprecatedVerifier<DoubleVector3Verifier>().type() != "");
+    REQUIRE(DeprecatedVerifier<BoolVector4Verifier>().type() != "");
+    REQUIRE(DeprecatedVerifier<IntVector4Verifier>().type() != "");
+    REQUIRE(DeprecatedVerifier<DoubleVector4Verifier>().type() != "");
 
-    EXPECT_NE("", ReferencingVerifier("identifier"s).type());
+    REQUIRE(ReferencingVerifier("identifier"s).type() != "");
 }
 
-TEST_F(DocumentationTest, VerifierDocumentationPostConditions) {
+TEST_CASE("Documentation: Verifier Documentation Post Conditions", "[documentation]") {
     using namespace openspace::documentation;
     using namespace std::string_literals;
 
-    EXPECT_NE("", BoolVerifier().documentation());
-    EXPECT_NE("", DoubleVerifier().documentation());
-    EXPECT_NE("", IntVerifier().documentation());
-    EXPECT_NE("", StringVerifier().documentation());
-    EXPECT_NE("", TableVerifier().documentation());
+    REQUIRE(BoolVerifier().documentation() != "");
+    REQUIRE(DoubleVerifier().documentation() != "");
+    REQUIRE(IntVerifier().documentation() != "");
+    REQUIRE(StringVerifier().documentation() != "");
+    REQUIRE(TableVerifier().documentation() != "");
 
-    EXPECT_NE("", BoolVector2Verifier().documentation());
-    EXPECT_NE("", IntVector2Verifier().documentation());
-    EXPECT_NE("", DoubleVector2Verifier().documentation());
-    EXPECT_NE("", BoolVector3Verifier().documentation());
-    EXPECT_NE("", IntVector3Verifier().documentation());
-    EXPECT_NE("", DoubleVector3Verifier().documentation());
-    EXPECT_NE("", BoolVector4Verifier().documentation());
-    EXPECT_NE("", IntVector4Verifier().documentation());
-    EXPECT_NE("", DoubleVector4Verifier().documentation());
+    REQUIRE(BoolVector2Verifier().documentation() != "");
+    REQUIRE(IntVector2Verifier().documentation() != "");
+    REQUIRE(DoubleVector2Verifier().documentation() != "");
+    REQUIRE(BoolVector3Verifier().documentation() != "");
+    REQUIRE(IntVector3Verifier().documentation() != "");
+    REQUIRE(DoubleVector3Verifier().documentation() != "");
+    REQUIRE(BoolVector4Verifier().documentation() != "");
+    REQUIRE(IntVector4Verifier().documentation() != "");
+    REQUIRE(DoubleVector4Verifier().documentation() != "");
 
-    EXPECT_NE("", IntLessVerifier(0).documentation());
-    EXPECT_NE("", DoubleLessVerifier(0.0).documentation());
-    EXPECT_NE("", IntLessEqualVerifier(0).documentation());
-    EXPECT_NE("", DoubleLessEqualVerifier(0.0).documentation());
-    EXPECT_NE("", IntGreaterVerifier(0).documentation());
-    EXPECT_NE("", DoubleGreaterVerifier(0.0).documentation());
-    EXPECT_NE("", IntGreaterEqualVerifier(0).documentation());
-    EXPECT_NE("", DoubleGreaterEqualVerifier(0.0).documentation());
+    REQUIRE(IntLessVerifier(0).documentation() != "");
+    REQUIRE(DoubleLessVerifier(0.0).documentation() != "");
+    REQUIRE(IntLessEqualVerifier(0).documentation() != "");
+    REQUIRE(DoubleLessEqualVerifier(0.0).documentation() != "");
+    REQUIRE(IntGreaterVerifier(0).documentation() != "");
+    REQUIRE(DoubleGreaterVerifier(0.0).documentation() != "");
+    REQUIRE(IntGreaterEqualVerifier(0).documentation() != "");
+    REQUIRE(DoubleGreaterEqualVerifier(0.0).documentation() != "");
 
-    EXPECT_NE("", BoolEqualVerifier(true).documentation());
-    EXPECT_NE("", IntEqualVerifier(0).documentation());
-    EXPECT_NE("", DoubleEqualVerifier(0.0).documentation());
-    EXPECT_NE("", StringEqualVerifier(""s).documentation());
-    EXPECT_NE("", BoolUnequalVerifier(true).documentation());
-    EXPECT_NE("", IntUnequalVerifier(0).documentation());
-    EXPECT_NE("", DoubleUnequalVerifier(0.0).documentation());
-    EXPECT_NE("", StringUnequalVerifier(""s).documentation());
+    REQUIRE(BoolEqualVerifier(true).documentation() != "");
+    REQUIRE(IntEqualVerifier(0).documentation() != "");
+    REQUIRE(DoubleEqualVerifier(0.0).documentation() != "");
+    REQUIRE(StringEqualVerifier(""s).documentation() != "");
+    REQUIRE(BoolUnequalVerifier(true).documentation() != "");
+    REQUIRE(IntUnequalVerifier(0).documentation() != "");
+    REQUIRE(DoubleUnequalVerifier(0.0).documentation() != "");
+    REQUIRE(StringUnequalVerifier(""s).documentation() != "");
 
-    EXPECT_NE("", BoolInListVerifier({ true }).documentation());
-    EXPECT_NE("", IntInListVerifier({ 0 }).documentation());
-    EXPECT_NE("", DoubleInListVerifier({ 0.0 }).documentation());
-    EXPECT_NE("", StringInListVerifier({ ""s }).documentation());
-    EXPECT_NE("", BoolNotInListVerifier({ true }).documentation());
-    EXPECT_NE("", IntNotInListVerifier({ 0 }).documentation());
-    EXPECT_NE("", DoubleNotInListVerifier({ 0.0 }).documentation());
-    EXPECT_NE("", StringNotInListVerifier({ ""s }).documentation());
+    REQUIRE(BoolInListVerifier({ true }).documentation() != "");
+    REQUIRE(IntInListVerifier({ 0 }).documentation() != "");
+    REQUIRE(DoubleInListVerifier({ 0.0 }).documentation() != "");
+    REQUIRE(StringInListVerifier({ ""s }).documentation() != "");
+    REQUIRE(BoolNotInListVerifier({ true }).documentation() != "");
+    REQUIRE(IntNotInListVerifier({ 0 }).documentation() != "");
+    REQUIRE(DoubleNotInListVerifier({ 0.0 }).documentation() != "");
+    REQUIRE(StringNotInListVerifier({ ""s }).documentation() != "");
 
-    EXPECT_NE("", IntInRangeVerifier({ 0, 1 }).documentation());
-    EXPECT_NE("", DoubleInRangeVerifier({ 0.0, 1.0 }).documentation());
-    EXPECT_NE("", IntNotInRangeVerifier({ 0, 1 }).documentation());
-    EXPECT_NE("", DoubleNotInRangeVerifier({ 0.0, 1.0 }).documentation());
+    REQUIRE(IntInRangeVerifier({ 0, 1 }).documentation() != "");
+    REQUIRE(DoubleInRangeVerifier({ 0.0, 1.0 }).documentation() != "");
+    REQUIRE(IntNotInRangeVerifier({ 0, 1 }).documentation() != "");
+    REQUIRE(DoubleNotInRangeVerifier({ 0.0, 1.0 }).documentation() != "");
 
-    EXPECT_NE("", BoolAnnotationVerifier("A"s).documentation());
-    EXPECT_NE("", IntAnnotationVerifier("A"s).documentation());
-    EXPECT_NE("", DoubleAnnotationVerifier("A"s).documentation());
-    EXPECT_NE("", StringAnnotationVerifier("A"s).documentation());
-    EXPECT_NE("", TableAnnotationVerifier("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<BoolVector2Verifier>("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<IntVector2Verifier>("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<DoubleVector2Verifier>("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<BoolVector3Verifier>("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<IntVector3Verifier>("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<DoubleVector3Verifier>("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<BoolVector4Verifier>("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<IntVector4Verifier>("A"s).documentation());
-    EXPECT_NE("", AnnotationVerifier<DoubleVector4Verifier>("A"s).documentation());
+    REQUIRE(BoolAnnotationVerifier("A"s).documentation() != "");
+    REQUIRE(IntAnnotationVerifier("A"s).documentation() != "");
+    REQUIRE(DoubleAnnotationVerifier("A"s).documentation() != "");
+    REQUIRE(StringAnnotationVerifier("A"s).documentation() != "");
+    REQUIRE(TableAnnotationVerifier("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<BoolVector2Verifier>("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<IntVector2Verifier>("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<DoubleVector2Verifier>("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<BoolVector3Verifier>("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<IntVector3Verifier>("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<DoubleVector3Verifier>("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<BoolVector4Verifier>("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<IntVector4Verifier>("A"s).documentation() != "");
+    REQUIRE(AnnotationVerifier<DoubleVector4Verifier>("A"s).documentation() != "");
 
-    EXPECT_NE("", BoolDeprecatedVerifier().documentation());
-    EXPECT_NE("", IntDeprecatedVerifier().documentation());
-    EXPECT_NE("", DoubleDeprecatedVerifier().documentation());
-    EXPECT_NE("", StringDeprecatedVerifier().documentation());
-    EXPECT_NE("", TableDeprecatedVerifier().documentation());
-    EXPECT_NE("", DeprecatedVerifier<BoolVector2Verifier>().documentation());
-    EXPECT_NE("", DeprecatedVerifier<IntVector2Verifier>().documentation());
-    EXPECT_NE("", DeprecatedVerifier<DoubleVector2Verifier>().documentation());
-    EXPECT_NE("", DeprecatedVerifier<BoolVector3Verifier>().documentation());
-    EXPECT_NE("", DeprecatedVerifier<IntVector3Verifier>().documentation());
-    EXPECT_NE("", DeprecatedVerifier<DoubleVector3Verifier>().documentation());
-    EXPECT_NE("", DeprecatedVerifier<BoolVector4Verifier>().documentation());
-    EXPECT_NE("", DeprecatedVerifier<IntVector4Verifier>().documentation());
-    EXPECT_NE("", DeprecatedVerifier<DoubleVector4Verifier>().documentation());
+    REQUIRE(BoolDeprecatedVerifier().documentation() != "");
+    REQUIRE(IntDeprecatedVerifier().documentation() != "");
+    REQUIRE(DoubleDeprecatedVerifier().documentation() != "");
+    REQUIRE(StringDeprecatedVerifier().documentation() != "");
+    REQUIRE(TableDeprecatedVerifier().documentation() != "");
+    REQUIRE(DeprecatedVerifier<BoolVector2Verifier>().documentation() != "");
+    REQUIRE(DeprecatedVerifier<IntVector2Verifier>().documentation() != "");
+    REQUIRE(DeprecatedVerifier<DoubleVector2Verifier>().documentation() != "");
+    REQUIRE(DeprecatedVerifier<BoolVector3Verifier>().documentation() != "");
+    REQUIRE(DeprecatedVerifier<IntVector3Verifier>().documentation() != "");
+    REQUIRE(DeprecatedVerifier<DoubleVector3Verifier>().documentation() != "");
+    REQUIRE(DeprecatedVerifier<BoolVector4Verifier>().documentation() != "");
+    REQUIRE(DeprecatedVerifier<IntVector4Verifier>().documentation() != "");
+    REQUIRE(DeprecatedVerifier<DoubleVector4Verifier>().documentation() != "");
 
-    EXPECT_NE("", ReferencingVerifier("identifier"s).documentation());
-
+    REQUIRE(ReferencingVerifier("identifier"s).documentation() != "");
 }

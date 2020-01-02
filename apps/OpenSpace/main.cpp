@@ -53,7 +53,9 @@
 #include <sgct/user.h>
 #include <sgct/window.h>
 #include <GLFW/glfw3.h>
+#ifdef WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
+#endif // WIN32
 #include <GLFW/glfw3native.h>
 #include <stb_image.h>
 #include <chrono>
@@ -1443,7 +1445,7 @@ int main(int argc, char** argv) {
     // is fixed. With the bug, the rendering stays gray even well after the main render
     // loop has started     -- 2018-10-28   abock
     for (const std::unique_ptr<sgct::Window>& win : sgct::Engine::instance().windows()) {
-        GLFWwindow* w = win->getWindowHandle();
+        GLFWwindow* w = win->windowHandle();
         int x, y;
         glfwGetWindowPos(w, &x, &y);
         glfwSetWindowPos(w, x + 1, y + 1);

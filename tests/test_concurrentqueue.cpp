@@ -22,32 +22,15 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#include "gtest/gtest.h"
+#include "catch2/catch.hpp"
 
 #include <openspace/util/concurrentqueue.h>
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <glm/glm.hpp>
-
-class ConcurrentQueueTest : public testing::Test {};
-
-TEST_F(ConcurrentQueueTest, Basic) {
+TEST_CASE("ConcurrentQueue: Basic", "[concurrentqueue]") {
     using namespace openspace;
 
     ConcurrentQueue<int> q1;
     q1.push(4);
     int val = q1.pop();
-    std::cout << val << std::endl;
+    REQUIRE(val == 4);
 }
-
-/*
-TEST_F(ConcurrentQueueTest, SharedPtr) {
-    ConcurrentQueue<std::shared_ptr<int>> q1;
-    std::shared_ptr<int> i1 = std::shared_ptr<int>(new int(1337));
-
-    q1.push(i1);
-    auto val = q1.pop();
-    std::cout << *val << std::endl;
-}
-*/

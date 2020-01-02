@@ -28,14 +28,12 @@ add_executable(
     test_assetloader.cpp
     test_concurrentjobmanager.cpp
     test_concurrentqueue.cpp
-    test_configurationmanager.cpp
     test_documentation.cpp
     test_iswamanager.cpp
     test_latlonpatch.cpp
     test_lrucache.cpp
     test_luaconversions.cpp
     test_optionproperty.cpp
-    test_patchcoverageprovider.cpp
     test_rawvolumeio.cpp
     test_scriptscheduler.cpp
     test_spicemanager.cpp
