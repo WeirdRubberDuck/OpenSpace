@@ -23,24 +23,24 @@
 ##########################################################################################
 
 add_executable(
-    OpenSpaceTest
-    main.cpp
-    test_assetloader.cpp
-    test_concurrentjobmanager.cpp
-    test_concurrentqueue.cpp
-    test_documentation.cpp
-    test_iswamanager.cpp
-    test_latlonpatch.cpp
-    test_lrucache.cpp
-    test_luaconversions.cpp
-    test_optionproperty.cpp
-    test_rawvolumeio.cpp
-    test_scriptscheduler.cpp
-    test_spicemanager.cpp
-    test_temporaltileprovider.cpp
-    test_timeline.cpp
+  OpenSpaceTest
+  main.cpp
+  test_assetloader.cpp
+  test_concurrentjobmanager.cpp
+  test_concurrentqueue.cpp
+  test_documentation.cpp
+  test_iswamanager.cpp
+  test_latlonpatch.cpp
+  test_lrucache.cpp
+  test_luaconversions.cpp
+  test_optionproperty.cpp
+  test_rawvolumeio.cpp
+  test_scriptscheduler.cpp
+  test_spicemanager.cpp
+  test_temporaltileprovider.cpp
+  test_timeline.cpp
 
-    regression/517.cpp
+  regression/517.cpp
 )
 
 set_openspace_compile_settings(OpenSpaceTest)
@@ -49,6 +49,16 @@ target_include_directories(OpenSpaceTest PUBLIC
 "${GHOUL_BASE_DIR}/ext/catch2/single_include"
 )
 target_compile_definitions(OpenSpaceTest PUBLIC "GHL_THROW_ON_ASSERT")
-target_link_libraries(OpenSpaceTest PUBLIC openspace-core)
+target_link_libraries(OpenSpaceTest openspace-core)
+
+if (OPENSPACE_MODULE_WEBBROWSER AND CEF_ROOT)
+  # Add the CEF binary distribution's cmake/ directory to the module path and
+  # find CEF to initialize it properly.
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${WEBBROWSER_MODULE_PATH}/cmake")
+  include(webbrowser_helpers)
+
+  set_cef_targets("${CEF_ROOT}" OpenSpaceTest)
+  run_cef_platform_config("${CEF_ROOT}" "${CEF_TARGET}" "${WEBBROWSER_MODULE_PATH}")
+endif ()
 
 set_folder_location(OpenSpaceTest "Unit Tests")

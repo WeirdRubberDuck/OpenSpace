@@ -204,19 +204,7 @@ if (MSVC)
     target_include_directories(openspace-core PUBLIC "${OPENSPACE_NVTOOLS_PATH}/include")
     end_dependency()
   endif ()
-
 endif ()
-
-##########################################################################################
-# Tests                                                                                  #
-##########################################################################################
-option(OPENSPACE_HAVE_TESTS "Activate the OpenSpace unit tests" ON)
-if (OPENSPACE_HAVE_TESTS)
-  begin_header("Generating OpenSpace unit test")
-  add_subdirectory("${OPENSPACE_BASE_DIR}/tests")
-  end_header()
-endif (OPENSPACE_HAVE_TESTS)
-
 
 begin_header("Configuring Modules")
 set(OPENSPACE_EXTERNAL_MODULES_PATHS "" CACHE STRING "List of external modules")
@@ -228,6 +216,13 @@ begin_header("Configuring Applications")
 handle_applications()
 end_header("End: Configuring Applications")
 message(STATUS "")
+
+option(OPENSPACE_HAVE_TESTS "Activate the OpenSpace unit tests" ON)
+if (OPENSPACE_HAVE_TESTS)
+  begin_header("Generating OpenSpace unit test")
+  add_subdirectory("${OPENSPACE_BASE_DIR}/tests")
+  end_header()
+endif (OPENSPACE_HAVE_TESTS)
 
 
 # Web Browser and Web gui
