@@ -369,7 +369,7 @@ TEST_CASE("SpiceManager: Get Target State", "[spicemanager]") {
     openspace::SpiceManager::deinitialize();
 }
 
-TEST_CASE("SpiceManager: ", "[spicemanager]") {
+TEST_CASE("SpiceManager: Transform matrix", "[spicemanager]") {
     openspace::SpiceManager::initialize();
 
    loadMetaKernel();
@@ -384,12 +384,9 @@ TEST_CASE("SpiceManager: ", "[spicemanager]") {
    spkezr_c("PHOEBE", et, "J2000", "LT+S", "CASSINI", state, &lt);
    sxform_c("J2000", "IAU_PHOEBE", et, referenceMatrix);
 
-   glm::dvec3 position(state[0], state[1], state[2]);
-   glm::dvec3 velocity(state[3], state[4], state[5]);
-
    openspace::SpiceManager::TransformMatrix stateMatrix;
    REQUIRE_NOTHROW(
-    stateMatrix = openspace::SpiceManager::ref().stateTransformMatrix(
+     stateMatrix = openspace::SpiceManager::ref().stateTransformMatrix(
         "J2000", "IAU_PHOEBE", et)
     );
    
@@ -398,28 +395,6 @@ TEST_CASE("SpiceManager: ", "[spicemanager]") {
        for (int j = 0; j < 6; j++) {
            REQUIRE(referenceMatrix[i][j] == Approx(stateMatrix[i * 6 + j]));
        }
-   }
-
-   #if defined __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#elif defined __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#endif
-
-   mxvg_c(referenceMatrix, state, 6, 6, state_t);
-
-#if defined __clang__
-#pragma clang diagnostic pop
-#elif defined __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
-
-   for (int i = 0; i < 3; i++) {
-       REQUIRE(position[i] == Approx(state_t[i]));
-       REQUIRE(velocity[i] == Approx(state_t[i + 3]));
    }
 
     openspace::SpiceManager::deinitialize();

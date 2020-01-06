@@ -48,15 +48,14 @@ namespace {
         *test = true;
         return 0;
     }
-}
+} // namespace
 
 TEST_CASE("AssetLoader: Assertion", "[assetloader]") {
     openspace::Scene scene(std::make_unique<openspace::SingleThreadedSceneInitializer>());
     ghoul::lua::LuaState* state = openspace::global::scriptEngine.luaState();
-    openspace::global::scriptEngine.initialize();
     openspace::SynchronizationWatcher syncWatcher;
     openspace::AssetLoader assetLoader(
-        *state,
+        state,
         &syncWatcher,
         FileSys.absolutePath("${TESTDIR}/AssetLoaderTest/")
     );
@@ -68,10 +67,9 @@ TEST_CASE("AssetLoader: Assertion", "[assetloader]") {
 TEST_CASE("AssetLoader: Basic Export Import", "[assetloader]") {
     openspace::Scene scene(std::make_unique<openspace::SingleThreadedSceneInitializer>());
     ghoul::lua::LuaState* state = openspace::global::scriptEngine.luaState();
-    openspace::global::scriptEngine.initialize();
     openspace::SynchronizationWatcher syncWatcher;
     openspace::AssetLoader assetLoader(
-        *state,
+        state,
         &syncWatcher,
         FileSys.absolutePath("${TESTDIR}/AssetLoaderTest/")
     );
@@ -82,10 +80,9 @@ TEST_CASE("AssetLoader: Basic Export Import", "[assetloader]") {
 TEST_CASE("AssetLoader: Asset Functions", "[assetloader]") {
     openspace::Scene scene(std::make_unique<openspace::SingleThreadedSceneInitializer>());
     ghoul::lua::LuaState* state = openspace::global::scriptEngine.luaState();
-    openspace::global::scriptEngine.initialize();
     openspace::SynchronizationWatcher syncWatcher;
     openspace::AssetLoader assetLoader(
-        *state,
+        state,
         &syncWatcher,
         FileSys.absolutePath("${TESTDIR}/AssetLoaderTest/")
     );
@@ -93,27 +90,12 @@ TEST_CASE("AssetLoader: Asset Functions", "[assetloader]") {
     REQUIRE_NOTHROW(assetLoader.add("assetfunctionsexist"));
 }
 
-TEST_CASE("AssetLoader: Dependency Functions", "[assetloader]") {
-    openspace::Scene scene(std::make_unique<openspace::SingleThreadedSceneInitializer>());
-    ghoul::lua::LuaState* state = openspace::global::scriptEngine.luaState();
-    openspace::global::scriptEngine.initialize();
-    openspace::SynchronizationWatcher syncWatcher;
-    openspace::AssetLoader assetLoader(
-        *state,
-        &syncWatcher,
-        FileSys.absolutePath("${TESTDIR}/AssetLoaderTest/")
-    );
-
-    REQUIRE_NOTHROW(assetLoader.add("dependencyfunctionsexist"));
-}
-
 TEST_CASE("AssetLoader: Asset Initialization", "[assetloader]") {
     openspace::Scene scene(std::make_unique<openspace::SingleThreadedSceneInitializer>());
     ghoul::lua::LuaState* state = openspace::global::scriptEngine.luaState();
-    openspace::global::scriptEngine.initialize();
     openspace::SynchronizationWatcher syncWatcher;
     openspace::AssetLoader assetLoader(
-        *state,
+        state,
         &syncWatcher,
         FileSys.absolutePath("${TESTDIR}/AssetLoaderTest/")
     );

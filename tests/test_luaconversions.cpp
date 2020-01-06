@@ -79,7 +79,7 @@
 #include <random>
 
 namespace {
-    constexpr const int NumberFuzzTests = 100000;
+    constexpr const int NumberFuzzTests = 10000;
 } // namespace
 
 TEST_CASE("LuaConversion: LuaExecution", "[luaconversion]") {
@@ -125,23 +125,22 @@ TEMPLATE_TEST_CASE("LuaConversion", "[luaconversion]", bool, char, signed char,
     lua_close(state);
 }
 
-TEMPLATE_TEST_CASE("LuaConversion Fuzz", "[luaconversion]", char, signed char,
-    unsigned char, short, unsigned short, int, unsigned int)
+TEMPLATE_TEST_CASE("LuaConversion Fuzz <short", "[luaconversion]", char, signed char,
+    unsigned char)
 {
     using T = TestType;
-    lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
-
     using namespace openspace::properties;
+    
+    lua_State* state = luaL_newstate();
 
     std::mt19937 gen(1337);
-    std::uniform_int_distribution<> dis(
+    std::uniform_int_distribution<short> dis(
         std::numeric_limits<T>::lowest(),
         std::numeric_limits<T>::max()
     );
 
-    constexpr const int NumberFuzzTests = 10000;
     for (int i = 0; i < NumberFuzzTests; ++i) {
+
         const T val = T(dis(gen));
 
         const bool success = PropertyDelegate<NumericalProperty<T>>::template toLuaValue<T>(
@@ -156,17 +155,56 @@ TEMPLATE_TEST_CASE("LuaConversion Fuzz", "[luaconversion]", char, signed char,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
 }
+
+TEMPLATE_TEST_CASE("LuaConversion Fuzz >short", "[luaconversion]", short, unsigned short,
+    int, unsigned int)
+{
+    using T = TestType;
+    using namespace openspace::properties;
+
+    lua_State* state = luaL_newstate();
+
+    std::mt19937 gen(1337);
+    std::uniform_int_distribution<T> dis(
+        std::numeric_limits<T>::lowest(),
+        std::numeric_limits<T>::max()
+    );
+
+    for (int i = 0; i < NumberFuzzTests; ++i) {
+
+        const T val = T(dis(gen));
+
+        const bool success = PropertyDelegate<NumericalProperty<T>>::template toLuaValue<T>(
+            state,
+            val
+            );
+        REQUIRE(success);
+        bool success2;
+        const T value = PropertyDelegate<NumericalProperty<T>>::template fromLuaValue<T>(
+            state,
+            success2
+            );
+        REQUIRE(success2);
+        REQUIRE(value == val);
+
+        lua_pop(state, 1);
+    }
+
+    lua_close(state);
+}
+
 
 TEMPLATE_TEST_CASE("LuaConversion Fuzz Limited Signed", "[luaconversion]", long,
     long long)
 {
     using T = TestType;
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
 
@@ -178,7 +216,6 @@ TEMPLATE_TEST_CASE("LuaConversion Fuzz Limited Signed", "[luaconversion]", long,
         std::numeric_limits<int>::max()
     );
 
-    constexpr const int NumberFuzzTests = 10000;
     for (int i = 0; i < NumberFuzzTests; ++i) {
         const T val = T(dis(gen));
 
@@ -194,6 +231,8 @@ TEMPLATE_TEST_CASE("LuaConversion Fuzz Limited Signed", "[luaconversion]", long,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -204,19 +243,17 @@ TEMPLATE_TEST_CASE("LuaConversion Fuzz Limited Unsigned", "[luaconversion]",
 {
     using T = TestType;
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
 
     std::mt19937 gen(1337);
-    std::uniform_int_distribution<> dis(
+    std::uniform_int_distribution<unsigned int> dis(
         // We need to limit the range of values as Lua uses 'doubles' to store, and some
         // values will not be representable
         std::numeric_limits<unsigned int>::lowest(),
         std::numeric_limits<unsigned int>::max()
     );
 
-    constexpr const int NumberFuzzTests = 10000;
     for (int i = 0; i < NumberFuzzTests; ++i) {
         const T val = T(dis(gen));
 
@@ -232,6 +269,8 @@ TEMPLATE_TEST_CASE("LuaConversion Fuzz Limited Unsigned", "[luaconversion]",
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -241,7 +280,6 @@ TEMPLATE_TEST_CASE("LuaConversion Float Fuzz", "[luaconversion]", float, double,
     long double)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -267,6 +305,8 @@ TEMPLATE_TEST_CASE("LuaConversion Float Fuzz", "[luaconversion]", float, double,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -276,7 +316,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec2 Float Fuzz", "[luaconversion]", glm::vec
     glm::dvec2)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -302,6 +341,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec2 Float Fuzz", "[luaconversion]", glm::vec
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -309,7 +350,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec2 Float Fuzz", "[luaconversion]", glm::vec
 TEMPLATE_TEST_CASE("LuaConversion: Vec2 Fuzz", "[luaconversion]", glm::ivec2, glm::uvec2)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -335,6 +375,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec2 Fuzz", "[luaconversion]", glm::ivec2, gl
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -344,7 +386,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec3 Float Fuzz", "[luaconversion]", glm::vec
     glm::dvec3)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -370,6 +411,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec3 Float Fuzz", "[luaconversion]", glm::vec
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -378,7 +421,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec3 Float Fuzz", "[luaconversion]", glm::vec
 TEMPLATE_TEST_CASE("LuaConversion: Vec3 Fuzz", "[luaconversion]", glm::ivec3, glm::uvec3)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -404,6 +446,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec3 Fuzz", "[luaconversion]", glm::ivec3, gl
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -413,7 +457,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec4 Float Fuzz", "[luaconversion]", glm::vec
     glm::dvec4)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -439,6 +482,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec4 Float Fuzz", "[luaconversion]", glm::vec
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -447,7 +492,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec4 Float Fuzz", "[luaconversion]", glm::vec
 TEMPLATE_TEST_CASE("LuaConversion: Vec4 Fuzz", "[luaconversion]", glm::ivec4, glm::uvec4)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -473,6 +517,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Vec4 Fuzz", "[luaconversion]", glm::ivec4, gl
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -482,7 +528,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat2x2 Fuzz", "[luaconversion]", glm::mat2x2,
     glm::dmat2x2)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -508,6 +553,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat2x2 Fuzz", "[luaconversion]", glm::mat2x2,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -517,7 +564,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat2x3 Fuzz", "[luaconversion]", glm::mat2x3,
     glm::dmat2x3)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -543,6 +589,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat2x3 Fuzz", "[luaconversion]", glm::mat2x3,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -552,7 +600,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat2x4 Fuzz", "[luaconversion]", glm::mat2x4,
     glm::dmat2x4)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -579,6 +626,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat2x4 Fuzz", "[luaconversion]", glm::mat2x4,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -588,7 +637,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat3x2 Fuzz", "[luaconversion]", glm::mat3x2,
     glm::dmat3x2)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -614,6 +662,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat3x2 Fuzz", "[luaconversion]", glm::mat3x2,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -623,7 +673,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat3x3 Fuzz", "[luaconversion]", glm::mat3x3,
     glm::dmat3x3)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -650,6 +699,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat3x3 Fuzz", "[luaconversion]", glm::mat3x3,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -659,7 +710,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat3x4 Fuzz", "[luaconversion]", glm::mat3x4,
     glm::dmat3x4)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -686,6 +736,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat3x4 Fuzz", "[luaconversion]", glm::mat3x4,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -695,7 +747,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat4x2 Fuzz", "[luaconversion]", glm::mat4x2,
     glm::dmat4x2)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -722,6 +773,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat4x2 Fuzz", "[luaconversion]", glm::mat4x2,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -731,7 +784,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat4x3 Fuzz", "[luaconversion]", glm::mat4x3,
     glm::dmat4x3)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -758,6 +810,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat4x3 Fuzz", "[luaconversion]", glm::mat4x3,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -767,7 +821,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat4x4 Fuzz", "[luaconversion]", glm::mat4x4,
     glm::dmat4x4)
 {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     using T = TestType;
@@ -795,6 +848,8 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat4x4 Fuzz", "[luaconversion]", glm::mat4x4,
         );
         REQUIRE(success2);
         REQUIRE(value == val);
+
+        lua_pop(state, 1);
     }
 
     lua_close(state);
@@ -803,7 +858,6 @@ TEMPLATE_TEST_CASE("LuaConversion: Mat4x4 Fuzz", "[luaconversion]", glm::mat4x4,
 
 TEST_CASE("LuaConversion: String", "[luaconversion]") {
     lua_State* state = luaL_newstate();
-    luaL_openlibs(state);
 
     using namespace openspace::properties;
     bool success

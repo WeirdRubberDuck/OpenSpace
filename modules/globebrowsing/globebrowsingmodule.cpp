@@ -308,7 +308,7 @@ void GlobeBrowsingModule::internalInitialize(const ghoul::Dictionary& dict) {
 #endif // OPENSPACE_MODULE_GLOBEBROWSING_INSTRUMENTATION
 
     // Deinitialize
-    global::callback::deinitialize.emplace_back([&]() {
+    global::callback::deinitializeGL.emplace_back([&]() {
         ZoneScopedN("GlobeBrowsingModule")
 
         GdalWrapper::destroy();

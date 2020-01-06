@@ -32,6 +32,7 @@
 #include <openspace/util/factorymanager.h>
 #include <openspace/util/spicemanager.h>
 #include <openspace/util/time.h>
+#include <ghoul/filesystem/file.h>
 #include <ghoul/filesystem/filesystem.h>
 #include <ghoul/logging/logmanager.h>
 #include <ghoul/lua/ghoul_lua.h>
@@ -43,8 +44,17 @@ int main(int argc, char** argv) {
     using namespace openspace;
     ghoul::initialize();
 
+    // Register the path of the executable,
+    // to make it possible to find other files in the same directory.
+    FileSys.registerPathToken(
+        "${BIN}",
+        ghoul::filesystem::File(absPath(argv[0])).directoryName(),
+        ghoul::filesystem::FileSystem::Override::Yes
+    );
+
     std::string configFile = configuration::findConfiguration();
     global::configuration = configuration::loadConfigurationFromFile(configFile);
+    global::openSpaceEngine.registerPathTokens();
     global::openSpaceEngine.initialize();
 
     FileSys.registerPathToken("${TESTDIR}", "${BASE}/tests");
@@ -53,5 +63,9 @@ int main(int argc, char** argv) {
     openspace::SpiceManager::deinitialize();
 
     int result = Catch::Session().run(argc, argv);
+
+    // And the deinitialization needs the SpiceManager to be initialized
+    openspace::SpiceManager::initialize();
+    global::openSpaceEngine.deinitialize();
     return result;
 }

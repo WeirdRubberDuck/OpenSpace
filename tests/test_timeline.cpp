@@ -27,7 +27,7 @@
 #include <openspace/util/timeline.h>
 #include <openspace/util/time.h>
 
-TEST_CASE("TimeLine: ", "[timeline]") {
+TEST_CASE("TimeLine: Add and Count Keyframes", "[timeline]") {
     openspace::Timeline<openspace::Time> timeline;
     timeline.addKeyframe(0.0, openspace::Time::now());
     timeline.addKeyframe(1.0, openspace::Time::now());
@@ -36,7 +36,7 @@ TEST_CASE("TimeLine: ", "[timeline]") {
 
 }
 
-TEST_CASE("TimeLine: ", "[timeline]") {
+TEST_CASE("TimeLine: Query Keyframes", "[timeline]") {
     openspace::Timeline<float> timeline;
     timeline.addKeyframe(0.0, 0.f);
     timeline.addKeyframe(1.0, 1.f);
@@ -52,7 +52,7 @@ TEST_CASE("TimeLine: ", "[timeline]") {
     REQUIRE(timeline.lastKeyframeBefore(1.0, true)->data == Approx(1.f));
 }
 
-TEST_CASE("TimeLine: ", "[timeline]") {
+TEST_CASE("TimeLine: Remove Keyframes", "[timeline]") {
     openspace::Timeline<float> timeline;
     timeline.addKeyframe(0.0, 0.f);
     timeline.addKeyframe(1.0, 1.f);

@@ -31,7 +31,9 @@
 #include <openspace/util/time.h>
 
 TEST_CASE("ISWAManager: Initialize", "[iswamanager]") {
+    openspace::IswaManager::deinitialize();
     REQUIRE_FALSE(openspace::IswaManager::isInitialized());
+
     openspace::IswaManager::initialize();
     REQUIRE(openspace::IswaManager::isInitialized());
     REQUIRE(&openspace::IswaManager::ref() == &openspace::IswaManager::ref());

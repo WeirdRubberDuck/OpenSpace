@@ -705,11 +705,12 @@ TEST_CASE(
     scheduler.loadScripts({ { "1", testDictionary1 } });
     scheduler.loadScripts({ { "1", testDictionary2 } });
 
-    auto res = scheduler.progressTo(openspace::Time::convertTime("2000 JAN 06"));
+    std::pair<ScriptScheduler::ScriptIt, ScriptScheduler::ScriptIt> res =
+        scheduler.progressTo(openspace::Time::convertTime("2000 JAN 06"));
     REQUIRE(res.first == res.second);
 
     res = scheduler.progressTo(openspace::Time::convertTime("2000 JAN 01"));
-    REQUIRE(std::distance(res.first, res.second) == 1);
+    REQUIRE(std::distance(res.first, res.second) == 2);
     REQUIRE(*(res.first) == "BackwardScript2");
     REQUIRE(*(std::next(res.first)) == "BackwardScript1");
 
