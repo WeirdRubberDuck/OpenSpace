@@ -47,6 +47,7 @@
 #include <sgct/engine.h>
 #include <sgct/fisheyeprojection.h>
 #include <sgct/log.h>
+#include <sgct/networkmanager.h>
 #include <sgct/screencapture.h>
 #include <sgct/settings.h>
 #include <sgct/shareddata.h>
@@ -937,12 +938,16 @@ void setSgctDelegateFunctions() {
     };
     sgctDelegate.averageDeltaTime = []() {
         ZoneScoped
-        return sgct::Engine::instance().avgDt();
+        return sgct::Engine::instance().statistics().avgDt(
+            sgct::Engine::instance().currentFrameNumber()
+        );
     };
     sgctDelegate.deltaTimeStandardDeviation = []() {
         ZoneScoped
         const sgct::Engine::Statistics& stats = sgct::Engine::instance().statistics();
-        const double avg = sgct::Engine::instance().avgDt();
+        const double avg = sgct::Engine::instance().statistics().avgDt(
+            sgct::Engine::instance().currentFrameNumber()
+        );
         const double sumSquare = std::accumulate(
             stats.frametimes.begin(),
             stats.frametimes.end(),
@@ -964,15 +969,15 @@ void setSgctDelegateFunctions() {
     };
     sgctDelegate.minDeltaTime = []() {
         ZoneScoped
-            return sgct::Engine::instance().minDt();
+            return sgct::Engine::instance().statistics().minDt();
     };
     sgctDelegate.maxDeltaTime = []() {
         ZoneScoped
-            return sgct::Engine::instance().maxDt();
+            return sgct::Engine::instance().statistics().maxDt();
     };
     sgctDelegate.deltaTime = []() {
         ZoneScoped
-        return sgct::Engine::instance().dt();
+        return sgct::Engine::instance().statistics().dt();
     };
     sgctDelegate.applicationTime = []() {
         ZoneScoped
@@ -1106,16 +1111,14 @@ void setSgctDelegateFunctions() {
         ZoneScoped
         sgct::Engine::instance().setEyeSeparation(distance);
     };
-    sgctDelegate.isExternalControlConnected = []() {
-        ZoneScoped
-        return sgct::Engine::instance().isExternalControlConnected();
-    };
     sgctDelegate.sendMessageToExternalControl = [](const std::vector<char>& message) {
         ZoneScoped
-        sgct::Engine::instance().sendMessageToExternalControl(
-            message.data(),
-            static_cast<int>(message.size())
-        );
+        if (sgct::NetworkManager::instance().externalControlConnection()) {
+            sgct::NetworkManager::instance().externalControlConnection()->sendData(
+                message.data(),
+                static_cast<int>(message.size())
+            );
+        }
     };
     sgctDelegate.isFisheyeRendering = []() {
         ZoneScoped
