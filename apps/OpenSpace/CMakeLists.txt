@@ -129,14 +129,15 @@ mark_as_advanced(EXECUTABLE_OUTPUT_PATH GLFW_BUILD_DOCS GLFW_BUILD_EXAMPLES
 )
 
 set_folder_location(sgct "External")
+set_folder_location(glad "External/SGCT")
 set_folder_location(glfw "External/SGCT")
+set_folder_location(miniziplibstatic "External/SGCT")
 set_folder_location(png16_static "External/SGCT")
 set_folder_location(quat "External/SGCT")
 set_folder_location(simd "External/SGCT")
 set_folder_location(tinyxml2static "External/SGCT")
 set_folder_location(vrpn "External/SGCT")
 set_folder_location(zlibstatic "External/SGCT")
-set_folder_location(miniziplibstatic "External/SGCT")
 
 if (UNIX AND (NOT APPLE))
   target_link_libraries(OpenSpace Xcursor Xinerama X11)
