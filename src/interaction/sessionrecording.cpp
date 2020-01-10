@@ -185,11 +185,13 @@ void SessionRecording::stopRecording() {
 bool SessionRecording::startPlayback(const std::string& filename,
                                      KeyframeTimeRef timeMode, bool forceSimTimeAtStart)
 {
+    std::string absFilename;
     if (filename.find("/") != std::string::npos) {
-        LERROR("Playback filename must not contain path (/) elements");
-        return false;
+        absFilename = absPath(filename);
     }
-    const std::string absFilename = absPath("${RECORDINGS}/" + filename);
+    else {
+        absFilename = absPath("${RECORDINGS}/" + filename);
+    }
 
     if (_state == SessionState::Recording) {
         LERROR("Unable to start playback while in session recording mode");
