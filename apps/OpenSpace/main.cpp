@@ -30,7 +30,6 @@
 #include <openspace/interaction/joystickinputstate.h>
 #include <openspace/util/keys.h>
 #include <ghoul/ghoul.h>
-#include <ghoul/filesystem/filesystem.h>
 #include <ghoul/cmdparser/commandlineparser.h>
 #include <ghoul/cmdparser/singlecommand.h>
 #include <ghoul/filesystem/file.h>
@@ -42,6 +41,7 @@
 #include <ghoul/misc/assert.h>
 #include <ghoul/misc/boolean.h>
 #include <ghoul/misc/profiling.h>
+#include <ghoul/opengl/ghoul_gl.h>
 #include <sgct/clustermanager.h>
 #include <sgct/commandline.h>
 #include <sgct/engine.h>
@@ -53,7 +53,9 @@
 #include <sgct/shareddata.h>
 #include <sgct/user.h>
 #include <sgct/window.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+
 #ifdef WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
 #endif // WIN32
@@ -78,6 +80,7 @@
 #endif // OPENVR_SUPPORT
 
 #ifdef OPENSPACE_HAS_SPOUT
+#define __gl_h_
 #include "SpoutLibrary.h"
 #endif // OPENSPACE_HAS_SPOUT
 
@@ -237,45 +240,6 @@ LONG WINAPI generateMiniDump(EXCEPTION_POINTERS* exceptionPointers) {
     return EXCEPTION_EXECUTE_HANDLER;
 }
 #endif // WIN32
-
-//
-//  Detect OpenGL version
-//
-std::pair<int, int> supportedOpenGLVersion() {
-    // Just create a window in order to retrieve the available OpenGL version before we
-    // create the real window
-    glfwInit();
-
-    // On OS X we need to explicitly set the version and specify that we are using CORE
-    // profile to be able to use glGetIntegerv(GL_MAJOR_VERSION, &major) and
-    // glGetIntegerv(GL_MINOR_VERSION, &minor) explicitly setting to OGL 3.3 CORE works
-    // since all Mac's now support at least 3.3
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
-
-    glfwWindowHint(GLFW_VISIBLE, static_cast<int>(GL_FALSE));
-
-    // By creating an offscreen window, the user will not know that we created this window
-    GLFWwindow* offscreen = glfwCreateWindow(128, 128, "", nullptr, nullptr);
-    glfwMakeContextCurrent(offscreen);
-    glbinding::Binding::initialize(glfwGetProcAddress);
-
-    // Get the OpenGL version
-    int major, minor;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
-
-    // And get rid of the window again
-    glfwDestroyWindow(offscreen);
-    glfwWindowHint(GLFW_VISIBLE, static_cast<int>(GL_TRUE));
-
-    return { major, minor };
-}
-
 
 //
 //  Init function
@@ -1379,20 +1343,7 @@ int main(int argc, char** argv) {
 
     // Try to open a window
     LDEBUG("Initialize SGCT Engine");
-    std::map<std::pair<int, int>, sgct::Engine::Profile> versionMapping = {
-        { { 3, 3 }, sgct::Engine::Profile::OpenGL_3_3_Core},
-        { { 4, 0 }, sgct::Engine::Profile::OpenGL_4_0_Core},
-        { { 4, 1 }, sgct::Engine::Profile::OpenGL_4_1_Core},
-        { { 4, 2 }, sgct::Engine::Profile::OpenGL_4_2_Core},
-        { { 4, 3 }, sgct::Engine::Profile::OpenGL_4_3_Core},
-        { { 4, 4 }, sgct::Engine::Profile::OpenGL_4_4_Core},
-        { { 4, 5 }, sgct::Engine::Profile::OpenGL_4_5_Core},
-        { { 4, 6 }, sgct::Engine::Profile::OpenGL_4_6_Core}
-    };
     sgct::config::Cluster cluster = sgct::loadCluster(config.configFilename);
-
-    std::pair<int, int> version = supportedOpenGLVersion();
-    LINFO(fmt::format("Detected OpenGL version: {}.{}", version.first, version.second));
 
     auto cleanup = [&](bool isInitialized) {
         if (isInitialized) {
@@ -1428,7 +1379,7 @@ int main(int argc, char** argv) {
     };
 
     try {
-        sgct::Engine::create(cluster, callbacks, config, versionMapping[version]);
+        sgct::Engine::create(cluster, callbacks, config);
     }
     catch (const std::runtime_error& e) {
         LFATALC("SGCT Init failed ", e.what());
