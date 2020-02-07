@@ -66,6 +66,8 @@ public:
 
 private: 
     const glm::dquat piecewiseSlerpRotation(double u) const;
+    const glm::dquat piecewiseSquadRotation(double t) const;
+
     void initCurve();
 
     // The speed function describing the shape of the speed curve. Values in [0,1].
