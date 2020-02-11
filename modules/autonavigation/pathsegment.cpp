@@ -159,37 +159,49 @@ const glm::dquat PathSegment::piecewiseSlerpRotation(double u) const {
     return result;
 }
 
+// Interpolate between a number of keyframes for orientation using SQUAD
 const glm::dquat PathSegment::piecewiseSquadRotation(double t) const {
-  
+
     // breakpoints for subintervals
     const double t1 = 0.2;
-    const double t2 = 0.8; // TODO: these should probably be based on distance
+    const double t2 = 0.3; // TODO: these should probably be based on distance
+    const double t3 = 0.7;
+    const double t4 = 0.8;
 
-    glm::dvec3 posAtT1 = getPositionAt(t1);
-    glm::dvec3 posAtT2 = getPositionAt(t2);
+    std::vector<double> times{ 0.0, t1, t2, t3, t4, 1.0 };
 
+    // Set up keyframes
     glm::dvec3 startNodePos = sceneGraphNode(_start.referenceNode)->worldPosition();
     glm::dvec3 endNodePos = sceneGraphNode(_end.referenceNode)->worldPosition();
 
     glm::dvec3 startUpVec = _start.rotation * glm::dvec3(0.0, 1.0, 0.0);
-    glm::dmat4 lookAtStartMat = glm::lookAt(posAtT1, startNodePos, startUpVec);
-    glm::dquat lookAtStartQuad = glm::normalize(glm::inverse(glm::quat_cast(lookAtStartMat)));
-
     glm::dvec3 endUpVec = _end.rotation * glm::dvec3(0.0, 1.0, 0.0);
-    glm::dmat4 lookAtEndMat = glm::lookAt(posAtT2, endNodePos, endUpVec);
-    glm::dquat lookAtEndQuad = glm::normalize(glm::inverse(glm::quat_cast(lookAtEndMat)));
 
-    std::vector<glm::dquat> keyframes{ _start.rotation, lookAtStartQuad, lookAtEndQuad, _end.rotation };
-    std::vector<double> times{ 0.0, t1, t2, 1.0 };
-    int nrSegments = keyframes.size() - 1;
+    glm::dquat lookAtStartQ1 = helpers::getLookAtQuaternion(getPositionAt(t1), startNodePos, startUpVec);
+    glm::dquat lookAtStartQ2 = helpers::getLookAtQuaternion(getPositionAt(t2), startNodePos, startUpVec);
+    glm::dquat lookAtEndQ1 = helpers::getLookAtQuaternion(getPositionAt(t3), endNodePos, endUpVec);
+    glm::dquat lookAtEndQ2 = helpers::getLookAtQuaternion(getPositionAt(t4), endNodePos, endUpVec);
+
+    std::vector<glm::dquat> keyframes{
+        _start.rotation,
+        lookAtStartQ1,
+        lookAtStartQ2,
+        lookAtEndQ1,
+        lookAtEndQ2,
+        _end.rotation
+    };
+
+    ghoul_assert(keyframes.size() == times.size(), "Must have one time value per keyframe.");
 
     // Interpolate keyframes using SQUAD [Shoemake 1987]
 
+    glm::dquat result;
     glm::dquat q_prev, q, q_inv, q_next, log1, log2, s1, s2;
+    int nrSegments = keyframes.size() - 1;
     int lastIndex = nrSegments - 1;
 
+    // Find the current segment and compute interpolation
     for (int i = 0; i < nrSegments; ++i) {
-        // Current segment? Then compute the squad interpolation
         if (t <= times[i + 1]) {
             // Compute S1
             q_prev = (i == 0) ? keyframes.front() : keyframes[i - 1];
@@ -215,9 +227,12 @@ const glm::dquat PathSegment::piecewiseSquadRotation(double t) const {
             s2 = q * glm::exp((-1.0 / 4.0) * (log1 + log2));
 
             double tScaled = (t - times[i]) / (times[i + 1] - times[i]);
-            return glm::squad(keyframes[i], keyframes[i + 1], s1, s2, tScaled);
+            result = glm::squad(keyframes[i], keyframes[i + 1], s1, s2, tScaled);
+            break;
         }
     }
+
+    return result;
 }
 
 // Initialise the curve, based on the start, end state and curve type
