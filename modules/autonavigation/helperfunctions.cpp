@@ -43,6 +43,52 @@ namespace openspace::autonavigation::helpers {
 
 namespace openspace::autonavigation::interpolation {
 
+    // Centripetal version alpha = 0, uniform for alpha = 0.5 and 
+    glm::dvec3 catmullRom(double t, const glm::dvec3& p0, const glm::dvec3& p1,
+        const glm::dvec3& p2, const glm::dvec3& p3, double alpha)
+    {
+       
+        double tension = 0;
+        double t01 = pow(glm::distance(p0, p1), alpha);
+        double t12 = pow(glm::distance(p1, p2), alpha);
+        double t23 = pow(glm::distance(p2, p3), alpha);
+
+        // TODO: make we dont divide by zero!
+        glm::dvec3 m01, m02, m23, m13;
+
+        (t01 < 0.0000001) ? 
+            m01 = glm::dvec3{} : m01 = (p1 - p0) / t01;
+        (t23 < 0.0000001) ?
+            m23 = glm::dvec3{} : m23 = (p3 - p2) / t23;
+        (t01 + t12 < 0.0000001) ? 
+            m02 = glm::dvec3{} : m02 = (p2 - p0) / (t01 + t12);
+        (t12 + t23 < 0.0000001) ? 
+            m13 = glm::dvec3{} : m13 = (p3 - p1) / (t12 + t23);
+
+        glm::dvec3 m1 = (1.0 - tension) *
+            (p2 - p1 + t12 * (m01 - m02));
+        glm::dvec3 m2 = (1.0 - tension) *
+            (p2 - p1 + t12 * (m23 - m13));
+
+        /*
+        glm::dvec3 m1 = (1.0 - tension) *
+            (p2 - p1 + t12 * ((p1 - p0) / t01 - (p2 - p0) / (t01 + t12)));
+        glm::dvec3 m2 = (1.0 - tension) *
+            (p2 - p1 + t12 * ((p3 - p2) / t23 - (p3 - p1) / (t12 + t23)));
+        */
+
+        glm::dvec3 a = 2.0 * (p1 - p2) + m1 + m2;
+        glm::dvec3 b = -3.0 * (p1 - p2) - m1 - m1 - m2;
+        glm::dvec3 c = m1;
+        glm::dvec3 d = p1;
+
+        return
+            a * t * t * t +
+            b * t * t +
+            c * t +
+            d;
+    }
+
     glm::dvec3 cubicBezier(double t, const glm::dvec3 &cp1, const glm::dvec3 &cp2,
                                      const glm::dvec3 &cp3, const glm::dvec3 &cp4 )
     {
