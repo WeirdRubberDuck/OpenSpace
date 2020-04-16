@@ -135,6 +135,10 @@ void PathSegment::initCurve() {
         _speedFunction = std::make_unique<CubicDampenedSpeed>(); 
         break;
 
+    case CurveType::CatmullRom:
+        _curve = std::make_unique<CatmullRomCurve>(_start, _end);
+        break;
+
     case CurveType::Linear:
         _curve = std::make_unique<LinearCurve>(_start, _end);
         _rotationInterpolator = std::make_unique<EasedSlerpInterpolator>(

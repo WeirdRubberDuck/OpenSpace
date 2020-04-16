@@ -34,6 +34,7 @@ namespace openspace::autonavigation {
 
 enum CurveType {
     Bezier3,
+    CatmullRom,
     Linear,
 };
 
@@ -69,6 +70,13 @@ private:
 class LinearCurve : public PathCurve {
 public:
     LinearCurve(const Waypoint& start, const Waypoint& end);
+    glm::dvec3 positionAt(double u);
+};
+
+
+class CatmullRomCurve : public PathCurve {
+public:
+    CatmullRomCurve(const Waypoint& start, const Waypoint& end);
     glm::dvec3 positionAt(double u);
 };
 

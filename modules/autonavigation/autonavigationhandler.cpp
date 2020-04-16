@@ -90,7 +90,8 @@ AutoNavigationHandler::AutoNavigationHandler()
 
     _defaultCurveOption.addOptions({
         { CurveType::Bezier3, "Bezier3" },
-        { CurveType::Linear, "Linear" }
+        { CurveType::CatmullRom, "CatmullRom" },
+        { CurveType::Linear, "Linear"} 
     });
     addProperty(_defaultCurveOption);
 

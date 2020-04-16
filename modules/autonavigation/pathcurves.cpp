@@ -210,6 +210,58 @@ void Bezier3Curve::initParameterIntervals() {
     _parameterIntervals.swap(newIntervals);
 }
 
+
+//Passes through all control points but first and last. Needs n > 3 control points
+CatmullRomCurve::CatmullRomCurve(const Waypoint& start, const Waypoint& end) {
+    glm::dvec3 startNodePos = start.node()->worldPosition();
+    glm::dvec3 endNodePos = end.node()->worldPosition();
+    double startNodeRadius = start.nodeDetails.validBoundingSphere;
+    double endNodeRadius = end.nodeDetails.validBoundingSphere;
+    glm::dvec3 startDirection = start.position() - startNodePos;
+    glm::dvec3 endDirection = end.position() - endNodePos;
+    glm::dvec3 nodeDiff = endNodePos - startNodePos;
+
+    double cosStartAngle = glm::dot(normalize(startDirection), normalize(nodeDiff));
+    bool TARGET_HIDDEN = cosStartAngle < -0.8;
+    bool TARGET_IN_OPPOSITE_DIRECTION = cosStartAngle > 0.8;
+
+    // IF VERY SHORT DIST OR PAUS..
+    // ENDSTATE ON BACKSIDE
+
+    _points.push_back(startNodePos); // control point before the first knot
+    _points.push_back(start.position()); // first knot
+
+
+    if (TARGET_HIDDEN) {
+        // Find direction orthogonal to end
+        glm::dvec3 parallell = glm::dot(startDirection, normalize(nodeDiff)) * normalize(nodeDiff);
+        glm::dvec3 orthogonal = normalize(startDirection - parallell);
+
+        // Move outward
+       // _points.push_back(start.position + 0.2 * startDirection);
+
+        //Move through point beside node
+        _points.push_back(startNodePos + 4.0 * startNodeRadius * orthogonal);
+
+        //Add point to handle the tangent?
+       // _points.push_back( startNodePos + 5.0*radius*orthogonal + 2.0*radius*normalize(parallell) );
+
+    }
+
+    _points.push_back(end.position()); // Last knot
+    _points.push_back(endNodePos); // Set control point
+
+    _length = arcLength(1.0);
+    _rotationInterpolator = RotationInterpolator{ start, end, this, Slerp };
+}
+
+glm::dvec3 CatmullRomCurve::positionAt(double t) {
+    //TODO use correct indices
+    int idx = 0;
+
+    return interpolation::catmullRom(t, _points[idx], _points[idx + 1], _points[idx + 2], _points[idx + 3], 0.9);
+}
+
 LinearCurve::LinearCurve(const Waypoint& start, const Waypoint& end) {
     _points.push_back(start.position());
     _points.push_back(end.position());
