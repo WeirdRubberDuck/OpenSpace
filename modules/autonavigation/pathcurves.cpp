@@ -256,9 +256,16 @@ CatmullRomCurve::CatmullRomCurve(const Waypoint& start, const Waypoint& end) {
 }
 
 glm::dvec3 CatmullRomCurve::positionAt(double t) {
-    //TODO use correct indices
-    int idx = 0;
+    if(t > 0.999999)
+        return *(_points.end() - 2);
 
+    // distribute t uniformly
+    int nrSegments = _points.size() - 3;
+    int idx = floor(nrSegments * t);
+    double segmentDuration = 1.0 / nrSegments;
+    double tSegment = fmod(t, segmentDuration) / segmentDuration;
+
+    LINFO(fmt::format("Catmull with {} segments. t = {}, idx = {} and tSegment = {}", nrSegments, t, idx, tSegment));
     return interpolation::catmullRom(t, _points[idx], _points[idx + 1], _points[idx + 2], _points[idx + 3], 0.9);
 }
 
