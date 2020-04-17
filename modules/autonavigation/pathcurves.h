@@ -78,6 +78,12 @@ class CatmullRomCurve : public PathCurve {
 public:
     CatmullRomCurve(const Waypoint& start, const Waypoint& end);
     glm::dvec3 positionAt(double u);
+
+private:
+    void initParameterIntervals();
+
+    std::vector<double> _parameterIntervals;
+    unsigned int _nrSegments;
 };
 
 } // namespace openspace::autonavigation

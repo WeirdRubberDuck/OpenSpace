@@ -210,7 +210,6 @@ void Bezier3Curve::initParameterIntervals() {
     _parameterIntervals.swap(newIntervals);
 }
 
-
 //Passes through all control points but first and last. Needs n > 3 control points
 CatmullRomCurve::CatmullRomCurve(const Waypoint& start, const Waypoint& end) {
     glm::dvec3 startNodePos = start.node()->worldPosition();
@@ -228,9 +227,9 @@ CatmullRomCurve::CatmullRomCurve(const Waypoint& start, const Waypoint& end) {
     // IF VERY SHORT DIST OR PAUS..
     // ENDSTATE ON BACKSIDE
 
-    _points.push_back(startNodePos); // control point before the first knot
+    //TODO: Investigate if using node positions is bad
+    _points.push_back(startNodePos); // control point before the first knot 
     _points.push_back(start.position()); // first knot
-
 
     if (TARGET_HIDDEN) {
         // Find direction orthogonal to end
@@ -245,28 +244,54 @@ CatmullRomCurve::CatmullRomCurve(const Waypoint& start, const Waypoint& end) {
 
         //Add point to handle the tangent?
        // _points.push_back( startNodePos + 5.0*radius*orthogonal + 2.0*radius*normalize(parallell) );
-
     }
 
     _points.push_back(end.position()); // Last knot
     _points.push_back(endNodePos); // Set control point
 
-    _length = arcLength(1.0);
+    _nrSegments = _points.size() - 3;
     _rotationInterpolator = RotationInterpolator{ start, end, this, Slerp };
+
+    for (double t = 0.0; t <= 1.0; t += 1.0 / _nrSegments) {
+        _parameterIntervals.push_back(t);
+    }
+
+    _length = arcLength(1.0); // requires values for parameter intervals
+    CatmullRomCurve::initParameterIntervals();
 }
 
 glm::dvec3 CatmullRomCurve::positionAt(double t) {
+    if (t < 0.000001)
+        return _points[1];
     if(t > 0.999999)
         return *(_points.end() - 2);
 
-    // distribute t uniformly
-    int nrSegments = _points.size() - 3;
-    int idx = floor(nrSegments * t);
-    double segmentDuration = 1.0 / nrSegments;
-    double tSegment = fmod(t, segmentDuration) / segmentDuration;
+    //distribute t by segment arc lenghts
 
-    LINFO(fmt::format("Catmull with {} segments. t = {}, idx = {} and tSegment = {}", nrSegments, t, idx, tSegment));
-    return interpolation::catmullRom(t, _points[idx], _points[idx + 1], _points[idx + 2], _points[idx + 3], 0.9);
+    // compute current segment, by first finding iterator to the first value that is larger than t 
+    std::vector<double>::iterator segmentEndIt =
+        std::lower_bound(_parameterIntervals.begin(), _parameterIntervals.end(), t);
+    unsigned int idx = (segmentEndIt - 1) - _parameterIntervals.begin();
+
+    double segmentStart = _parameterIntervals[idx];
+    double segmentDuration = (_parameterIntervals[idx + 1] - _parameterIntervals[idx]);
+    double tSegment = (t - segmentStart) / segmentDuration;
+
+    return interpolation::catmullRom(tSegment, _points[idx], _points[idx + 1], _points[idx + 2], _points[idx + 3], 1.0);
+}
+
+// compute curve parameter intervals based on relative arc length
+void CatmullRomCurve::initParameterIntervals() {
+    std::vector<double> newIntervals;
+    double dt = 1.0 / _nrSegments;
+
+    newIntervals.push_back(0.0);
+    for (int i = 1; i < _nrSegments; i++) {
+        newIntervals.push_back(arcLength(dt * i) / _length);
+    }
+    newIntervals.push_back(1.0);
+
+    _parameterIntervals.swap(newIntervals);
 }
 
 LinearCurve::LinearCurve(const Waypoint& start, const Waypoint& end) {
