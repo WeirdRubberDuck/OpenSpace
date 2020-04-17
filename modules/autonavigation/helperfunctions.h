@@ -47,6 +47,7 @@ namespace openspace::autonavigation::interpolation {
     // Alternatively, add cubicBezier interpolation in ghoul and only use
     // ghoul's interpolator methods
 
+    // Centripetal version alpha = 0, uniform for alpha = 0.5 and chordal for alpha = 1
     glm::dvec3 catmullRom(double t, const glm::dvec3& p0, const glm::dvec3& p1,
         const glm::dvec3& p2, const glm::dvec3& p3, double alpha=0.5);
 
