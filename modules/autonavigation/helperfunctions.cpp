@@ -47,7 +47,7 @@ namespace openspace::autonavigation::interpolation {
     glm::dvec3 catmullRom(double t, const glm::dvec3& p0, const glm::dvec3& p1,
         const glm::dvec3& p2, const glm::dvec3& p3, double alpha)
     { 
-        double tension = 0; // TODO:make it an optional parameter or remove?
+        const double Epsilon = 1E-7;
         glm::dvec3 m01, m02, m23, m13;
 
         double t01 = pow(glm::distance(p0, p1), alpha);
@@ -55,19 +55,17 @@ namespace openspace::autonavigation::interpolation {
         double t23 = pow(glm::distance(p2, p3), alpha);
 
         // Prevent zero division
-        (t01 < 0.0000001) ? 
+        (t01 < Epsilon) ? 
             m01 = glm::dvec3{} : m01 = (p1 - p0) / t01;
-        (t23 < 0.0000001) ?
+        (t23 < Epsilon) ?
             m23 = glm::dvec3{} : m23 = (p3 - p2) / t23;
-        (t01 + t12 < 0.0000001) ? 
+        (t01 + t12 < Epsilon) ? 
             m02 = glm::dvec3{} : m02 = (p2 - p0) / (t01 + t12);
-        (t12 + t23 < 0.0000001) ? 
+        (t12 + t23 < Epsilon) ? 
             m13 = glm::dvec3{} : m13 = (p3 - p1) / (t12 + t23);
 
-        glm::dvec3 m1 = (1.0 - tension) *
-            (p2 - p1 + t12 * (m01 - m02));
-        glm::dvec3 m2 = (1.0 - tension) *
-            (p2 - p1 + t12 * (m23 - m13));
+        glm::dvec3 m1 = p2 - p1 + t12 * (m01 - m02);
+        glm::dvec3 m2 = p2 - p1 + t12 * (m23 - m13);
 
         glm::dvec3 a = 2.0 * (p1 - p2) + m1 + m2;
         glm::dvec3 b = -3.0 * (p1 - p2) - m1 - m1 - m2;
