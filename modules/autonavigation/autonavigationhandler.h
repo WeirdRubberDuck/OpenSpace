@@ -102,6 +102,11 @@ private:
     // for testing pause behaviors. 
     // TODO: remove later, if it causes problems with regular navigation
     properties::BoolProperty _applyStopBehaviorWhenIdle;
+
+    // Temporary property for scaling the speed. Should later possibly be some predefined 
+    // default values for "slow", "medium", "fast", but these depend on our values for 
+    // default duration
+    properties::FloatProperty _speedScale;
 };
 
 } // namespace openspace::autonavigation

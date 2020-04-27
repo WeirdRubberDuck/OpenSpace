@@ -73,6 +73,12 @@ namespace {
         "If enabled, the camera is controlled using the default stop behavior even when no path is playing."
     };
 
+    constexpr const openspace::properties::Property::PropertyInfo SpeedScaleInfo = {
+        "SpeedScale",
+        "Speed Scale",
+        "TODO"
+    };
+
 } // namespace
 
 namespace openspace::autonavigation {
@@ -84,6 +90,7 @@ AutoNavigationHandler::AutoNavigationHandler()
     , _stopAtTargetsPerDefault(StopAtTargetsPerDefaultInfo, false)
     , _defaultStopBehavior(DefaultStopBehaviorInfo, properties::OptionProperty::DisplayType::Dropdown)
     , _applyStopBehaviorWhenIdle(ApplyStopBehaviorWhenIdleInfo, false)
+    , _speedScale(SpeedScaleInfo, 1.0f, 0.01f, 5.0f) // TODO: Suitable default values
 {
     addPropertySubOwner(_atNodeNavigator);
 
@@ -105,6 +112,7 @@ AutoNavigationHandler::AutoNavigationHandler()
     addProperty(_defaultStopBehavior);
 
     addProperty(_applyStopBehaviorWhenIdle);
+    addProperty(_speedScale);
 }
 
 AutoNavigationHandler::~AutoNavigationHandler() {} // NOLINT
@@ -124,6 +132,9 @@ bool AutoNavigationHandler::hasFinished() const {
 
 void AutoNavigationHandler::updateCamera(double deltaTime) {
     ghoul_assert(camera() != nullptr, "Camera must not be nullptr");
+
+    // TODO: better name, that implies that the delta time is scaled and not the speed
+    deltaTime *= _speedScale;
 
     if (!_isPlaying || _pathSegments.empty()) {
         // for testing, apply at node behavior when idle
