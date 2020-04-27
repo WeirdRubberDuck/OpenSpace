@@ -250,7 +250,6 @@ CatmullRomCurve::CatmullRomCurve(const Waypoint& start, const Waypoint& end) {
     _points.push_back(endNodePos); // Set control point
 
     _nrSegments = _points.size() - 3;
-    _rotationInterpolator = RotationInterpolator{ start, end, this, Slerp };
 
     for (double t = 0.0; t <= 1.0; t += 1.0 / _nrSegments) {
         _parameterIntervals.push_back(t);
