@@ -27,8 +27,8 @@
 namespace openspace::autonavigation::helpers {
 
     // Shift and scale to a subinterval [start,end]
-    double shiftAndScale(double t, double start, double end) { 
-        ghoul_assert(0.0 < start && start < end  && end < 1.0, 
+    double shiftAndScale(double t, double start, double end) {
+        ghoul_assert(0.0 < start && start < end&& end < 1.0,
             "Values must be 0.0 < start < end < 1.0!");
         double tScaled = t / (end - start) - start;
         return std::max(0.0, std::min(tScaled, 1.0));
@@ -45,8 +45,8 @@ namespace openspace::autonavigation::interpolation {
 
     // Based on implementation by Mika Rantanen https://qroph.github.io/2018/07/30/smooth-paths-using-catmull-rom-splines.html
     glm::dvec3 catmullRom(double t, const glm::dvec3& p0, const glm::dvec3& p1,
-        const glm::dvec3& p2, const glm::dvec3& p3, double alpha)
-    { 
+                          const glm::dvec3& p2, const glm::dvec3& p3, double alpha)
+    {
         const double Epsilon = 1E-7;
         glm::dvec3 m01, m02, m23, m13;
 
@@ -89,9 +89,8 @@ namespace openspace::autonavigation::interpolation {
             + cp4 * t * t * t;
     }
 
-    glm::dvec3 linear(double t, const glm::dvec3 &cp1, const glm::dvec3 &cp2) {
+    glm::dvec3 linear(double t, const glm::dvec3& cp1, const glm::dvec3& cp2) {
         return cp1 * (1.0 - t) + cp2 * t;
     }
 
 } // interpolation
-
