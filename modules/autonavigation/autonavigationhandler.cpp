@@ -133,9 +133,6 @@ bool AutoNavigationHandler::hasFinished() const {
 void AutoNavigationHandler::updateCamera(double deltaTime) {
     ghoul_assert(camera() != nullptr, "Camera must not be nullptr");
 
-    // TODO: better name, that implies that the delta time is scaled and not the speed
-    deltaTime *= _speedScale;
-
     if (!_isPlaying || _pathSegments.empty()) {
         // for testing, apply at node behavior when idle
         if (_applyStopBehaviorWhenIdle) {
@@ -151,6 +148,9 @@ void AutoNavigationHandler::updateCamera(double deltaTime) {
         applyStopBehaviour(deltaTime);
         return;
     }
+
+    // TODO: better name, that implies that the delta time is scaled and not the speed
+    deltaTime *= _speedScale;
 
     std::unique_ptr<PathSegment> &currentSegment = _pathSegments[_currentSegmentIndex];
 
