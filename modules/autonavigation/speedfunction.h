@@ -25,7 +25,12 @@
 #ifndef __OPENSPACE_MODULE_AUTONAVIGATION___SPEEDFUNCTION___H__
 #define __OPENSPACE_MODULE_AUTONAVIGATION___SPEEDFUNCTION___H__
 
+#include <modules/autonavigation/pathcurves.h>
+#include <vector>
+
 namespace openspace::autonavigation {
+
+class PathCurve;
 
 // The speed function describing the shape of the speed curve. Values in [0,1].
 class SpeedFunction {
@@ -51,6 +56,17 @@ public:
     CubicDampenedSpeed();
     double value(double t) const override;
 }; 
+
+class relativeDistanceSpeed : public SpeedFunction {
+public:
+    relativeDistanceSpeed(glm::dvec3 startTarget, glm::dvec3 endTarget, PathCurve* path);
+    double value(double t) const override;
+
+private:
+    int _nrSamples = 200;
+    int _kernalSize = 10;
+    std::vector<double> _speedSamples;
+};
 
 } // namespace openspace::autonavigation
 

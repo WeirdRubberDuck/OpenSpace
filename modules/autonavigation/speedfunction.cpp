@@ -85,4 +85,52 @@ double CubicDampenedSpeed::value(double t) const {
     return speed;
 }
 
+relativeDistanceSpeed::relativeDistanceSpeed(glm::dvec3 startTarget, glm::dvec3 endTarget, PathCurve* path) {
+
+    for (int i = 0; i < _kernalSize; i++) {
+        _speedSamples.push_back(0.0);
+    }
+
+    // TODO: save distance to closest target use log of it?
+    // create voronoi map?
+    for (int i = 0; i < _nrSamples; i++) {
+        glm::dvec3 toStart = startTarget - path->positionAt(0);
+        glm::dvec3 toEnd = endTarget - path->positionAt(i / _nrSamples);
+        double dist = glm::min(glm::length(toStart), glm::length(toEnd));
+        double speed = log(dist);
+        _speedSamples.push_back(speed);
+    }
+
+    for (int i = 0; i < _kernalSize; i++) {
+        _speedSamples.push_back(0.0);
+    }
+
+    initIntegratedSum();
+}
+
+double relativeDistanceSpeed::value(double t) const {
+    ghoul_assert(t >= 0.0 && t <= 1.0, "Variable t out of range [0,1]");
+
+    // return a smoothened version of the samples :) Endings are zero to make it stop at start and end
+    int idx = floor(t * double(_nrSamples + _kernalSize));
+    
+    double someValue = _speedSamples[_nrSamples/2];
+
+    // return average speed
+    // TODO: make it completely smooth
+    double sum = 0;
+    for (int i = 0; i < _kernalSize; i++) {
+        sum += _speedSamples[idx + i];
+    }
+
+    // avoid zero speed
+    sum += 0.001;
+    sum /= someValue; // avoiding precission troubles somewhat
+   
+    LINFO(fmt::format("{} ", glm::pow(glm::abs(sum), 3.0)));
+    return glm::pow(glm::abs(sum), 3.0);
+    //return glm::abs(glm::exp(sum) - 1.0);
+}
+
+
 } // namespace openspace::autonavigation

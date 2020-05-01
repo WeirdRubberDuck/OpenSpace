@@ -139,7 +139,11 @@ void PathSegment::initCurve() {
             _end.node()->worldPosition(),
             _curve.get()
         );
-        _speedFunction = std::make_unique<CubicDampenedSpeed>(); 
+        _speedFunction = std::make_unique<relativeDistanceSpeed>(
+            _start.node()->worldPosition(),
+            _end.node()->worldPosition(),
+            _curve.get()
+        );
         break;
 
     case CurveType::Linear:
