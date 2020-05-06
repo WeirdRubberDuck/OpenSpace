@@ -174,7 +174,7 @@ glm::dvec3 Bezier3Curve::positionAt(double u) {
     ghoul_assert((nrPoints - 1) % 3 == 0, "A vector containing 3n + 1 control points must be provided!");
     ghoul_assert(_nrSegments == (nrTimes - 1), "Number of interval times must match number of intervals");
 
-    if (abs(u) < Epsilon)
+    if (u < Epsilon)
         return _points.front();
 
     if (abs(1.0 - u) < Epsilon)

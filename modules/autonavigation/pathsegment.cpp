@@ -30,6 +30,7 @@
 #include <openspace/engine/globals.h>
 #include <openspace/scene/scenegraphnode.h>
 #include <ghoul/logging/logmanager.h>
+#include <fstream>
 
 namespace {
     constexpr const char* _loggerCat = "PathSegment";
@@ -37,133 +38,155 @@ namespace {
 
 namespace openspace::autonavigation {
 
-PathSegment::PathSegment(Waypoint start, Waypoint end, CurveType type, 
-						 std::optional<double> duration = std::nullopt)
-    : _start(start), _end(end), _curveType(type)
-{
-    initCurve();
-
-    // TODO: handle duration better
-    if (duration.has_value()) {
-        _duration = duration.value();
-    }
-    else {
-        // TODO: compute default duration based on curve length 
-        // Also, when compensatng for simulation time later we need to make a guess for 
-        // the duration, based on the current position of the target. 
-        _duration = 5;
-    }
-}
-
-void PathSegment::setStart(Waypoint cs) {
-    _start = std::move(cs);
-    initCurve();
-    // TODO later: maybe recompute duration as well...
-}
-
-const Waypoint PathSegment::start() const { return _start; }
-
-const Waypoint PathSegment::end() const { return _end; }
-
-const double PathSegment::duration() const { return _duration; }
-
-const double PathSegment::pathLength() const { return _curve->length(); }
-
-// TODO: remove function for debugging
-const std::vector<glm::dvec3> PathSegment::getControlPoints() const {
-    return _curve->getPoints();
-}
-
-CameraPose PathSegment::traversePath(double dt) {
-    if (!_curve || !_rotationInterpolator || !_speedFunction) {
-        // TODO: handle better (abort path somehow)
-        return _start.pose;
-    }
-
-    // compute displacement along the path during this frame
-    double displacement = 0.0;
-    int steps = 2; // TODO: should possibly increase with larger risk of error
-    double h = dt / steps;
-    for (int i = 0; i < steps; ++i) {
-        double t = _progressedTime + i * h;
-        double speed = 0.5 * (speedAtTime(t - 0.5*h) + speedAtTime(t + 0.5*h)); // midpoint method
-        displacement += h * speed;
-    }
-
-    _traveledDistance += displacement;
-
-    double relativeDisplacement = _traveledDistance / pathLength();
-    relativeDisplacement = std::max(0.0, std::min(relativeDisplacement, 1.0));
-
-    // TEST: 
-    //LINFO("-----------------------------------");
-    //LINFO(fmt::format("u = {}", relativeDisplacement));
-    //LINFO(fmt::format("progressedTime = {}", _progressedTime));
-
-    _progressedTime += dt;
-
-    return interpolatedPose(relativeDisplacement);
-}
-
-std::string PathSegment::getCurrentAnchor() const {
-    bool pastHalfway = (_traveledDistance / pathLength()) > 0.5;
-    return (pastHalfway) ? _end.nodeDetails.identifier : _start.nodeDetails.identifier;
-}
-
-bool PathSegment::hasReachedEnd() const {
-    return (_traveledDistance / pathLength()) >= 1.0;
-}
-
-double PathSegment::speedAtTime(double time) const {
-    return _speedFunction->scaledValue(time, _duration, pathLength());
-}
-
-CameraPose PathSegment::interpolatedPose(double u) const {
-    CameraPose cs;
-    cs.position = _curve->positionAt(u);
-    cs.rotation = _rotationInterpolator->interpolate(u);
-    return cs;
-}
-
-void PathSegment::initCurve() {
-    _curve.reset();
-
-    switch (_curveType) 
+    PathSegment::PathSegment(Waypoint start, Waypoint end, CurveType type,
+        std::optional<double> duration = std::nullopt)
+        : _start(start), _end(end), _curveType(type)
     {
-    case CurveType::Bezier3:
-        _curve = std::make_unique<Bezier3Curve>(_start, _end);
-        _rotationInterpolator = std::make_unique<LookAtInterpolator>(
-            _start.rotation(),
-            _end.rotation(),
-            _start.node()->worldPosition(),
-            _end.node()->worldPosition(),
-            _curve.get()
-        );
-        _speedFunction = std::make_unique<relativeDistanceSpeed>(
-            _start.node()->worldPosition(),
-            _end.node()->worldPosition(),
-            _curve.get()
-        );
-        break;
+        // debug output
+        std::ofstream os;
+        os.open("D:/ingro/cameraPoses_" + end.nodeDetails.identifier + ".txt"); //, std::ios_base::app); // to append instead of overwrite
+        os << "# Values along the curve between " << start.nodeDetails.identifier
+            << " and " << end.nodeDetails.identifier << std::endl;
+        os << "# u        length(pos)" << std::endl;
+        os.close();
 
-    case CurveType::Linear:
-        _curve = std::make_unique<LinearCurve>(_start, _end);
-        _rotationInterpolator = std::make_unique<EasedSlerpInterpolator>(
-            _start.rotation(), 
-            _end.rotation()
-        );
-        _speedFunction = std::make_unique<CubicDampenedSpeed>();
-        break;
+        initCurve();
 
-    default:
-        LERROR("Could not create curve. Type does not exist!");
-        return;
+        // TODO: handle duration better
+        if (duration.has_value()) {
+            _duration = duration.value();
+        }
+        else {
+            // TODO: compute default duration based on curve length 
+            // Also, when compensatng for simulation time later we need to make a guess for 
+            // the duration, based on the current position of the target. 
+            _duration = 5;
+        }
     }
 
-    if (!_curve || !_rotationInterpolator || !_speedFunction) {
-        LERROR("Curve type has not been properly initialized.");
-        return;
+    void PathSegment::setStart(Waypoint cs) {
+        _start = std::move(cs);
+        initCurve();
+        // TODO later: maybe recompute duration as well...
     }
-}
+
+    const Waypoint PathSegment::start() const { return _start; }
+
+    const Waypoint PathSegment::end() const { return _end; }
+
+    const double PathSegment::duration() const { return _duration; }
+
+    const double PathSegment::pathLength() const { return _curve->length(); }
+
+    // TODO: remove function for debugging
+    const std::vector<glm::dvec3> PathSegment::getControlPoints() const {
+        return _curve->getPoints();
+    }
+
+    CameraPose PathSegment::traversePath(double dt) {
+        if (!_curve || !_rotationInterpolator || !_speedFunction) {
+            // TODO: handle better (abort path somehow)
+            return _start.pose;
+        }
+
+        // compute displacement along the path during this frame
+        double displacement = 0.0;
+        int steps = 2; // TODO: should possibly increase with larger risk of error
+        double h = dt / steps;
+        for (int i = 0; i < steps; ++i) {
+            double t = _progressedTime + i * h;
+            double speed = 0.5 * (speedAtTime(t - 0.5 * h) + speedAtTime(t + 0.5 * h)); // midpoint method
+            displacement += h * speed;
+        }
+
+        _traveledDistance += displacement;
+
+        double relativeDisplacement = _traveledDistance / pathLength();
+        relativeDisplacement = std::max(0.0, std::min(relativeDisplacement, 1.0));
+
+        // TEST: 
+        //LINFO("-----------------------------------");
+        //LINFO(fmt::format("u = {}", relativeDisplacement));
+        //LINFO(fmt::format("progressedTime = {}", _progressedTime));
+
+        _progressedTime += dt;
+
+        return interpolatedPose(relativeDisplacement);
+    }
+
+    std::string PathSegment::getCurrentAnchor() const {
+        bool pastHalfway = (_traveledDistance / pathLength()) > 0.5;
+        return (pastHalfway) ? _end.nodeDetails.identifier : _start.nodeDetails.identifier;
+    }
+
+    bool PathSegment::hasReachedEnd() const {
+        return (_traveledDistance / pathLength()) >= 1.0;
+    }
+
+    double PathSegment::speedAtTime(double time) const {
+        return _speedFunction->scaledValue(time, _duration, pathLength());
+    }
+
+    CameraPose PathSegment::interpolatedPose(double u) const {
+        CameraPose cs;
+        cs.position = _curve->positionAt(u);
+        cs.rotation = _rotationInterpolator->interpolate(u);
+
+        // debug output
+        std::ofstream os;
+        os.open("D:/ingro/cameraPoses_" + _end.nodeDetails.identifier + ".txt", std::ios_base::app); // append instead of overwrite
+       
+        if (os.is_open()) {
+            os << u << "    " << length(cs.position) << std::endl;
+        }
+        os.close();
+           
+        return cs;
+    }
+
+    void PathSegment::initCurve() {
+        _curve.reset();
+
+        switch (_curveType)
+        {
+        case CurveType::Bezier3:
+            _curve = std::make_unique<Bezier3Curve>(_start, _end);
+            _rotationInterpolator = std::make_unique<LookAtInterpolator>(
+                _start.rotation(),
+                _end.rotation(),
+                _start.node()->worldPosition(),
+                _end.node()->worldPosition(),
+                _curve.get()
+                );
+            _speedFunction = std::make_unique<relativeDistanceSpeed>(
+                _start.node()->worldPosition(),
+                _end.node()->worldPosition(),
+                _curve.get()
+                );
+            break;
+
+        case CurveType::Linear:
+            _curve = std::make_unique<LinearCurve>(_start, _end);
+            _rotationInterpolator = std::make_unique<EasedSlerpInterpolator>(
+                _start.rotation(),
+                _end.rotation()
+                );
+            _speedFunction = std::make_unique<relativeDistanceSpeed>(
+                _start.node()->worldPosition(),
+                _end.node()->worldPosition(),
+                _curve.get()
+                );
+            break;
+
+        default:
+            LERROR("Could not create curve. Type does not exist!");
+            return;
+        }
+
+        if (!_curve || !_rotationInterpolator || !_speedFunction) {
+            LERROR("Curve type has not been properly initialized.");
+            return;
+        }
+    }
 
 } // namespace openspace::autonavigation

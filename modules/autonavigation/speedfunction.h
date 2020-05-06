@@ -48,7 +48,7 @@ protected:
 
     // store the sum of the function over the duration of the segment, 
     // so we don't need to recompue it every time we access the speed 
-    double _integratedSum = 0.0;
+    long double _integratedSum = 0.0;
 };
 
 class CubicDampenedSpeed : public SpeedFunction {
@@ -59,13 +59,13 @@ public:
 
 class relativeDistanceSpeed : public SpeedFunction {
 public:
-    relativeDistanceSpeed(glm::dvec3 startTarget, glm::dvec3 endTarget, PathCurve* path);
+    relativeDistanceSpeed(glm::dvec3 startTargetPos, glm::dvec3 endTargetPos, PathCurve* path);
     double value(double t) const override;
 
 private:
-    int _nrSamples = 200;
-    int _kernalSize = 10;
-    std::vector<double> _speedSamples;
+    long double _scaleFactor; 
+    PathCurve* _path = nullptr;
+    std::vector<glm::dvec3> _objectPosisions;
 };
 
 } // namespace openspace::autonavigation

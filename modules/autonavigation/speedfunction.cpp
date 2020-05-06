@@ -48,6 +48,10 @@ double SpeedFunction::scaledValue(double time, double duration, double pathLengt
 }
 
 void SpeedFunction::initIntegratedSum() {
+    std::ofstream os;
+    os.open("D:/ingro/integratedsum.txt"); // append instead of overwrite
+    os << "# Integrated sum" << std::endl;
+    os << "# t    midpointSpeed    speedSum" << std::endl;
     // apply duration constraint (eq. 14 in Eberly)
     double speedSum = 0.0;
     int steps = 100;
@@ -55,7 +59,13 @@ void SpeedFunction::initIntegratedSum() {
     for (double t = 0.0; t <= 1.0; t += h) {
         double midpointSpeed = 0.5 * (value(t + 0.5*h) + value(t - 0.5*h));
         speedSum += h * midpointSpeed;
+
+        // debug output
+        if (os.is_open()) {
+            os << t << "    " << h * midpointSpeed << "    " << speedSum << std::endl;
+        }
     }
+    os.close();
     _integratedSum = speedSum;
 }
 
@@ -85,25 +95,22 @@ double CubicDampenedSpeed::value(double t) const {
     return speed;
 }
 
-relativeDistanceSpeed::relativeDistanceSpeed(glm::dvec3 startTarget, glm::dvec3 endTarget, PathCurve* path) {
+relativeDistanceSpeed::relativeDistanceSpeed(glm::dvec3 startTargetPos, glm::dvec3 endTargetPos, PathCurve* path) 
+    : _path(path)
+{
+    //TODO: add positions from other nodes to check
+    _objectPosisions.push_back(endTargetPos);
+    _objectPosisions.push_back(startTargetPos);
+    
 
-    for (int i = 0; i < _kernalSize; i++) {
-        _speedSamples.push_back(0.0);
-    }
+    // scale to reduce risk of going beyond precision
+    double startDistance = glm::length(_path->positionAt(0.0) - startTargetPos);
+    double endDistance = glm::length(_path->positionAt(1.0) - endTargetPos);
+    _scaleFactor = 1.0 / glm::min(startDistance, endDistance);
 
-    // TODO: save distance to closest target use log of it?
-    // create voronoi map?
-    for (int i = 0; i < _nrSamples; i++) {
-        glm::dvec3 toStart = startTarget - path->positionAt(0);
-        glm::dvec3 toEnd = endTarget - path->positionAt(i / _nrSamples);
-        double dist = glm::min(glm::length(toStart), glm::length(toEnd));
-        double speed = log(dist);
-        _speedSamples.push_back(speed);
-    }
-
-    for (int i = 0; i < _kernalSize; i++) {
-        _speedSamples.push_back(0.0);
-    }
+    // Prioritize that it works better for the smaller one compared to bigger distances! Is it possiple?
+  //  double ratio = startDistance / (startDistance + endDistance);
+   // _scaleFactor = 1.0 / ( ratio * startDistance + (1.0 - ratio) * endDistance);
 
     initIntegratedSum();
 }
@@ -111,25 +118,39 @@ relativeDistanceSpeed::relativeDistanceSpeed(glm::dvec3 startTarget, glm::dvec3 
 double relativeDistanceSpeed::value(double t) const {
     ghoul_assert(t >= 0.0 && t <= 1.0, "Variable t out of range [0,1]");
 
-    // return a smoothened version of the samples :) Endings are zero to make it stop at start and end
-    int idx = floor(t * double(_nrSamples + _kernalSize));
-    
-    double someValue = _speedSamples[_nrSamples/2];
+    glm::dvec3 cameraPos = _path->positionAt(t);
+    double smallestDistance = glm::length(cameraPos - _objectPosisions[0]); 
 
-    // return average speed
-    // TODO: make it completely smooth
-    double sum = 0;
-    for (int i = 0; i < _kernalSize; i++) {
-        sum += _speedSamples[idx + i];
+    for (int i = 1; i < _objectPosisions.size(); i++) {
+        double distance = glm::length(cameraPos - _objectPosisions[i]);
+        if (distance < smallestDistance)
+            smallestDistance = distance;
     }
 
-    // avoid zero speed
-    sum += 0.001;
-    sum /= someValue; // avoiding precission troubles somewhat
-   
-    LINFO(fmt::format("{} ", glm::pow(glm::abs(sum), 3.0)));
-    return glm::pow(glm::abs(sum), 3.0);
-    //return glm::abs(glm::exp(sum) - 1.0);
+    // scalefactor gives a small extra value to ensure we have a speed over zero
+    //double extra = 0.01 * glm::length(_path->positionAt(1.0) - _objectPosisions[0]); 
+    double distToEnd = glm::length(cameraPos - _path->positionAt(1.0));
+    double ratio = t * t;
+    // to avoid zero speed and make sure we reach the target
+    double extra = 0.00000001 * glm::length(_path->positionAt(1.0) - _objectPosisions[0]);
+
+    long double speed = 
+        ratio * distToEnd + 
+        _scaleFactor * _scaleFactor * _scaleFactor * (1.0 - ratio) * glm::pow(smallestDistance * _scaleFactor, 3.0); //glm::abs(glm::exp(smallestDistance * _scaleFactor) )
+        + ratio * extra;// 
+
+    LINFO(fmt::format("t {}, speed {}, smallest dist {}",
+        t, speed, _scaleFactor * smallestDistance));
+    std::ofstream os;
+    os.open("D:/ingro/reldist-speed.txt", std::ios_base::app);
+   // os << "# Relative distance speed function values" << std::endl;
+   // os << "# t  speed  smallest_distance" << std::endl;
+    os << t << "  " << speed << "  " << _scaleFactor * smallestDistance << std::endl;
+
+    return speed;
+    //return glm::abs(glm::exp(smallestDistance * _scaleFactor) - 2.7); 
+    //PROBLEM: REACHING END WAY TOO EARLY! OR LATE
+    //STRANGE: GOING FROM FAR OUT STILL CREATES An SMOOTHLY INCREASING SPEED, I DONT THINK THIS IS DEFINED IN THE SPEED FUNCTION!
 }
 
 
