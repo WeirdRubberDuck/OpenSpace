@@ -73,6 +73,7 @@ private:
     // Playback variables
     double _traveledDistance = 0.0; 
     double _progressedTime = 0.0; // Time since playback started
+    glm::dvec3 _currentPosition;
 };
 
 } // namespace openspace::autonavigation

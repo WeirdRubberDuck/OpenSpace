@@ -73,6 +73,12 @@ namespace {
         "If enabled, the camera is controlled using the default stop behavior even when no path is playing."
     };
 
+    constexpr const openspace::properties::Property::PropertyInfo SpeedParameterInfo = {
+       "SppedParameterInfo",
+       "Speed Parameter Info",
+       "Parameter that regulates sped"
+    };
+
 } // namespace
 
 namespace openspace::autonavigation {
@@ -84,6 +90,7 @@ AutoNavigationHandler::AutoNavigationHandler()
     , _stopAtTargetsPerDefault(StopAtTargetsPerDefaultInfo, false)
     , _defaultStopBehavior(DefaultStopBehaviorInfo, properties::OptionProperty::DisplayType::Dropdown)
     , _applyStopBehaviorWhenIdle(ApplyStopBehaviorWhenIdleInfo, false)
+    , _speedFactor(SpeedParameterInfo, 1.8, -3.0, 3.0)
 {
     addPropertySubOwner(_atNodeNavigator);
 
@@ -92,7 +99,7 @@ AutoNavigationHandler::AutoNavigationHandler()
         { CurveType::Linear, "Linear" }
     });
     addProperty(_defaultCurveOption);
-
+    
     addProperty(_includeRoll);
     addProperty(_stopAtTargetsPerDefault);
 
@@ -105,6 +112,8 @@ AutoNavigationHandler::AutoNavigationHandler()
     addProperty(_defaultStopBehavior);
 
     addProperty(_applyStopBehaviorWhenIdle);
+
+    addProperty(_speedFactor);
 }
 
 AutoNavigationHandler::~AutoNavigationHandler() {} // NOLINT
@@ -120,6 +129,10 @@ const SceneGraphNode* AutoNavigationHandler::anchor() const {
 bool AutoNavigationHandler::hasFinished() const {
     unsigned int lastIndex = (unsigned int)_pathSegments.size() - 1;
     return _currentSegmentIndex > lastIndex; 
+}
+
+double AutoNavigationHandler::speedFactor() const {
+    return _speedFactor;
 }
 
 void AutoNavigationHandler::updateCamera(double deltaTime) {

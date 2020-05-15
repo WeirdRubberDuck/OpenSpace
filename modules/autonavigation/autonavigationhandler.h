@@ -64,6 +64,7 @@ public:
     std::vector<glm::dquat> getCurveOrientations(int nPerSegment); //debug
     std::vector<glm::dvec3> getCurveViewDirections(int nPerSegment); //debug
     std::vector<glm::dvec3> getControlPoints(); //debug
+    double speedFactor() const; 
 
 private:
     Waypoint wayPointFromCamera();
@@ -104,6 +105,8 @@ private:
     // for testing pause behaviors. 
     // TODO: remove later, if it causes problems with regular navigation
     properties::BoolProperty _applyStopBehaviorWhenIdle;
+
+    properties::DoubleProperty _speedFactor;
 };
 
 } // namespace openspace::autonavigation

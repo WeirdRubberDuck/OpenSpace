@@ -24,10 +24,12 @@
 
 #include <modules/autonavigation/pathsegment.h>
 
+#include <modules/autonavigation/autonavigationmodule.h>
 #include <modules/autonavigation/pathcurves.h>
 #include <modules/autonavigation/rotationinterpolator.h>
 #include <modules/autonavigation/speedfunction.h>
 #include <openspace/engine/globals.h>
+#include <openspace/engine/moduleengine.h>
 #include <openspace/scene/scenegraphnode.h>
 #include <ghoul/logging/logmanager.h>
 
@@ -51,6 +53,7 @@ PathSegment::PathSegment(Waypoint start, Waypoint end, CurveType type,
         _duration = std::log(pathLength());
         //LINFO(fmt::format("Default duration: {}", _duration));
     }
+    _currentPosition = _start.position(); 
 }
 
 void PathSegment::setStart(Waypoint cs) {
@@ -77,30 +80,49 @@ CameraPose PathSegment::traversePath(double dt) {
         // TODO: handle better (abort path somehow)
         return _start.pose;
     }
+    
+    AutoNavigationModule* module = global::moduleEngine.module<AutoNavigationModule>();
+    AutoNavigationHandler& handler = module->AutoNavigationHandler();
+    double speedFactor = glm::pow(0.1, -handler.speedFactor());
 
-    // compute displacement along the path during this frame
-    double displacement = 0.0;
-    int steps = 2; // TODO: should possibly increase with larger risk of error
-    double h = dt / steps;
-    for (int i = 0; i < steps; ++i) {
-        double t = _progressedTime + i * h;
-        double speed = 0.5 * (speedAtTime(t - 0.5*h) + speedAtTime(t + 0.5*h)); // midpoint method
-        displacement += h * speed;
+    double scaledInterpolationTime = dt / _duration;
+    
+    glm::dvec3 ToStartNode = _start.node()->worldPosition() - _currentPosition;
+    glm::dvec3 ToEndNode = _end.node()->worldPosition() - _currentPosition;
+    double distanceToClosestNode = glm::min(glm::length(ToEndNode), glm::length(ToStartNode));
+
+    double stepDistance = speedFactor * scaledInterpolationTime * glm::exp(glm::log(distanceToClosestNode));
+
+    
+    // TODO: easing out close to start and end, mix with distance left to reduce speed
+    /*
+    double relativeLengthCovered = _traveledDistance; / pathLength();
+    // does limits have to be relative to make sense? 
+    double minLimit = 0.1;
+    double maxLimit = 0.9;
+    if (relativeLengthCovered < minLimit { 
+        //starts on zero, goes to 1
+        double factor = helpers::shiftAndScale(relativeLengthCovered, 0.0, minLimit); 
+
+        stepDistance = speedFactor * dt * glm::exp(glm::mix(
+            glm::log(_traveledDistance),
+            glm::log(distanceToClosestNode), 
+            glm::min(relativeLengthCovered, 1.0))
+        );
     }
+    else { //same for end */
 
-    _traveledDistance += displacement;
+    //avoid zero speed
+    _traveledDistance += stepDistance;
+    _traveledDistance = std::max(0.0001, std::min(_traveledDistance, pathLength())); 
 
-    double relativeDisplacement = _traveledDistance / pathLength();
-    relativeDisplacement = std::max(0.0, std::min(relativeDisplacement, 1.0));
+    double u = _traveledDistance / pathLength(); 
+    u = std::max(0.0, std::min(u, 1.0));
 
-    // TEST: 
-    //LINFO("-----------------------------------");
-    //LINFO(fmt::format("u = {}", relativeDisplacement));
-    //LINFO(fmt::format("progressedTime = {}", _progressedTime));
-
+    _currentPosition = interpolatedPose(u).position;
     _progressedTime += dt;
-
-    return interpolatedPose(relativeDisplacement);
+    
+    return interpolatedPose(u);
 }
 
 std::string PathSegment::getCurrentAnchor() const {
