@@ -35,6 +35,8 @@
 
 namespace {
     constexpr const char* _loggerCat = "PathSegment";
+
+    const double Epsilon = 1E-7;
 } // namespace
 
 namespace openspace::autonavigation {
