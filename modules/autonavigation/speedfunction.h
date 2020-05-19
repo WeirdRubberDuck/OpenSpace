@@ -25,6 +25,8 @@
 #ifndef __OPENSPACE_MODULE_AUTONAVIGATION___SPEEDFUNCTION___H__
 #define __OPENSPACE_MODULE_AUTONAVIGATION___SPEEDFUNCTION___H__
 
+#include <modules/autonavigation/pathcurves.h>
+
 namespace openspace::autonavigation {
 
 // The speed function describing the shape of the speed curve. Values in [0,1].
@@ -33,24 +35,28 @@ public:
     SpeedFunction() = default;
     virtual ~SpeedFunction();
 
-    double scaledValue(double time, double duration, double pathLength) const;
-
-    virtual double value(double t) const = 0;
-
-protected:
-    // must be called by each subclass after initialization
-    void initIntegratedSum();
-
-    // store the sum of the function over the duration of the segment, 
-    // so we don't need to recompue it every time we access the speed 
-    double _integratedSum = 0.0;
+    // returns the speed refor relative duration or length, t and l should be in range [0,1]
+    virtual double value(double t, double l) = 0;
 };
 
 class CubicDampenedSpeed : public SpeedFunction {
 public:
-    CubicDampenedSpeed();
-    double value(double t) const override;
+    CubicDampenedSpeed(double pathLength);
+    double value(double t, double l) override;
+
+private:
+    double _pathLength;
 }; 
+
+class DistanceSpeed : public SpeedFunction {
+public:
+    DistanceSpeed(PathCurve* path, std::vector<glm::dvec3> nodeCenters);
+    double value(double t, double l) override;
+
+private:
+    std::vector<glm::dvec3> _nodeCenters;
+    PathCurve* _path = nullptr;
+};
 
 } // namespace openspace::autonavigation
 

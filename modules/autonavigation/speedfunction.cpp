@@ -24,6 +24,9 @@
 
 #include <modules/autonavigation/speedfunction.h>
 
+#include <modules/autonavigation/autonavigationmodule.h>
+#include <openspace/engine/globals.h>
+#include <openspace/engine/moduleengine.h>
 #include <ghoul/logging/logmanager.h>
 #include <ghoul/misc/easing.h>
 
@@ -35,35 +38,10 @@ namespace openspace::autonavigation {
 
 SpeedFunction::~SpeedFunction() {}
 
-/*
-* Get speed at time value in the range [0, duration], scaled according to the constraint
-* in eq. 14 in Eberly 2007
-* (https://www.geometrictools.com/Documentation/MovingAlongCurveSpecifiedSpeed.pdf)
-* OBS! If integrated over the duration for the path it shall match the total length.
-*/
-double SpeedFunction::scaledValue(double time, double duration, double pathLength) const {
-    ghoul_assert(time >= 0 && time <= duration, "Time out of range [0, duration]");
-    double t = std::clamp(time / duration, 0.0, 1.0);
-    return (pathLength * this->value(t)) / (duration * _integratedSum);
-}
+CubicDampenedSpeed::CubicDampenedSpeed(double pathLength) 
+    : _pathLength(pathLength) { }
 
-void SpeedFunction::initIntegratedSum() {
-    // apply duration constraint (eq. 14 in Eberly)
-    double speedSum = 0.0;
-    int steps = 100;
-    double h = 1.0 / steps;
-    for (double t = 0.0; t <= 1.0; t += h) {
-        double midpointSpeed = 0.5 * (value(t + 0.5*h) + value(t - 0.5*h));
-        speedSum += h * midpointSpeed;
-    }
-    _integratedSum = speedSum;
-}
-
-CubicDampenedSpeed::CubicDampenedSpeed() {
-    initIntegratedSum();
-}
-
-double CubicDampenedSpeed::value(double t) const {
+double CubicDampenedSpeed::value(double t, double l) {
     ghoul_assert(t >= 0.0 && t <= 1.0, "Variable t out of range [0,1]");
 
     const double tPeak = 0.5;
@@ -81,8 +59,43 @@ double CubicDampenedSpeed::value(double t) const {
     }
 
     // avoid zero speed
-    speed += 0.001; // OBS! This value gets really big for large distances..
-    return speed;
+    speed += 0.0000001; // OBS! This value gets really big for large distances..
+    //return speed;
+
+    // TODO: compare to l and ensure that end is reached
+
+    //the integrated sum of a symmetric easeinout function is 0.5
+    return speed / 0.5;
+}
+
+DistanceSpeed::DistanceSpeed(PathCurve* path, std::vector<glm::dvec3> nodeCenters)
+    : _path(path)
+{
+    // TODO: add validation, at least one node position needed!!
+    for (glm::dvec3 nodePos : nodeCenters) {
+        _nodeCenters.push_back(nodePos);
+    }
+};
+
+// Return speed based on distance from current position to closest provided node
+double DistanceSpeed::value(double t, double l) {
+    AutoNavigationModule* module = global::moduleEngine.module<AutoNavigationModule>();
+    AutoNavigationHandler& handler = module->AutoNavigationHandler();
+    double speedFactor = glm::pow(0.1, -handler.speedFactor());
+
+    glm::dvec3 currentPosition = _path->positionAt(l); 
+
+    double distanceToClosestNode = length(_nodeCenters[0] - currentPosition);
+    for (int i = 0; i < _nodeCenters.size(); i++)
+    {
+        double distance = length(_nodeCenters[i] - currentPosition);
+        distanceToClosestNode = glm::min(distanceToClosestNode, distance);
+    }
+
+    double stepDistance = speedFactor * glm::exp(glm::log(distanceToClosestNode));
+    stepDistance = std::max(0.01, stepDistance); //avoid zero speed
+
+    return stepDistance/_path->length(); // normalize
 }
 
 } // namespace openspace::autonavigation

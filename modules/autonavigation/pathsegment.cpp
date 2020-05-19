@@ -55,7 +55,6 @@ PathSegment::PathSegment(Waypoint start, Waypoint end, CurveType type,
         _duration = std::log(pathLength());
         //LINFO(fmt::format("Default duration: {}", _duration));
     }
-    _currentPosition = _start.position(); 
 }
 
 void PathSegment::setStart(Waypoint cs) {
@@ -83,48 +82,25 @@ CameraPose PathSegment::traversePath(double dt) {
         return _start.pose;
     }
     
-    AutoNavigationModule* module = global::moduleEngine.module<AutoNavigationModule>();
-    AutoNavigationHandler& handler = module->AutoNavigationHandler();
-    double speedFactor = glm::pow(0.1, -handler.speedFactor());
+    double RelativeTimeToDuration = _progressedTime / _duration;
+    double relativeDistanceToPathLength = _traveledDistance / pathLength();
 
-    double scaledInterpolationTime = dt / _duration;
-    
-    glm::dvec3 ToStartNode = _start.node()->worldPosition() - _currentPosition;
-    glm::dvec3 ToEndNode = _end.node()->worldPosition() - _currentPosition;
-    double distanceToClosestNode = glm::min(glm::length(ToEndNode), glm::length(ToStartNode));
+    // Get speed relative curve to curve length
+    double speedRelativeCurveLength = _speedFunction->value(RelativeTimeToDuration, relativeDistanceToPathLength);
+    double displacement = dt * pathLength() * speedRelativeCurveLength / _duration; 
 
-    double stepDistance = speedFactor * scaledInterpolationTime * glm::exp(glm::log(distanceToClosestNode));
-
-    
-    // TODO: easing out close to start and end, mix with distance left to reduce speed
-    /*
-    double relativeLengthCovered = _traveledDistance; / pathLength();
-    // does limits have to be relative to make sense? 
-    double minLimit = 0.1;
-    double maxLimit = 0.9;
-    if (relativeLengthCovered < minLimit { 
-        //starts on zero, goes to 1
-        double factor = helpers::shiftAndScale(relativeLengthCovered, 0.0, minLimit); 
-
-        stepDistance = speedFactor * dt * glm::exp(glm::mix(
-            glm::log(_traveledDistance),
-            glm::log(distanceToClosestNode), 
-            glm::min(relativeLengthCovered, 1.0))
-        );
-    }
-    else { //same for end */
-
-    //avoid zero speed
-    _traveledDistance += stepDistance;
-    _traveledDistance = std::max(0.0001, std::min(_traveledDistance, pathLength())); 
-
-    double u = _traveledDistance / pathLength(); 
-    u = std::max(0.0, std::min(u, 1.0));
-
-    _currentPosition = interpolatedPose(u).position;
     _progressedTime += dt;
-    
-    return interpolatedPose(u);
+    _traveledDistance += displacement;
+
+    double newRelativeDistanceToPathLength = _traveledDistance / pathLength();
+
+    // TEST: 
+    // LINFO("-----------------------------------");
+    // LINFO(fmt::format("newRelativeDistanceToPathLength = {}", newRelativeDistanceToPathLength));
+    // LINFO(fmt::format("progressedTime = {}", _progressedTime));
+    // LINFO(fmt::format("_progressedTime/_duration - newRelativeDistanceToPathLength = {}", _progressedTime / _duration - newRelativeDistanceToPathLength));
+
+    return interpolatedPose(newRelativeDistanceToPathLength);
 }
 
 std::string PathSegment::getCurrentAnchor() const {
@@ -136,8 +112,14 @@ bool PathSegment::hasReachedEnd() const {
     return (_traveledDistance / pathLength()) >= 1.0;
 }
 
+// get speed relative to the curve length
 double PathSegment::speedAtTime(double time) const {
-    return _speedFunction->scaledValue(time, _duration, pathLength());
+    ghoul_assert(time >= 0 && time <= duration, "Time out of range [0, duration]");
+
+    // TODO: add warning that travelled distance could be wrong and give strange results outside!
+    double t = std::clamp(time / _duration, 0.0, 1.0);
+    double l = std::clamp(_traveledDistance / pathLength(), 0.0, 1.0);
+    return _speedFunction->value(t, l);
 }
 
 CameraPose PathSegment::interpolatedPose(double u) const {
@@ -150,6 +132,12 @@ CameraPose PathSegment::interpolatedPose(double u) const {
 void PathSegment::initCurve() {
     _curve.reset();
 
+    // TODO: add more positions to check against with some get function?
+    std::vector<glm::dvec3> nodeCenters = {
+        _start.node()->worldPosition(),
+        _end.node()->worldPosition()
+    };
+
     switch (_curveType) 
     {
     case CurveType::Bezier3:
@@ -161,7 +149,7 @@ void PathSegment::initCurve() {
             _end.node()->worldPosition(),
             _curve.get()
         );
-        _speedFunction = std::make_unique<CubicDampenedSpeed>(); 
+        _speedFunction = std::make_unique<CubicDampenedSpeed>(_curve->length()); 
         break;
 
     case CurveType::Linear:
@@ -170,7 +158,7 @@ void PathSegment::initCurve() {
             _start.rotation(), 
             _end.rotation()
         );
-        _speedFunction = std::make_unique<CubicDampenedSpeed>();
+        _speedFunction = std::make_unique<DistanceSpeed>(_curve.get(), nodeCenters);
         break;
 
     default:

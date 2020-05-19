@@ -90,7 +90,7 @@ AutoNavigationHandler::AutoNavigationHandler()
     , _stopAtTargetsPerDefault(StopAtTargetsPerDefaultInfo, false)
     , _defaultStopBehavior(DefaultStopBehaviorInfo, properties::OptionProperty::DisplayType::Dropdown)
     , _applyStopBehaviorWhenIdle(ApplyStopBehaviorWhenIdleInfo, false)
-    , _speedFactor(SpeedParameterInfo, 1.8, -3.0, 3.0)
+    , _speedFactor(SpeedParameterInfo, 1.5, 0.0, 3.0)
 {
     addPropertySubOwner(_atNodeNavigator);
 
