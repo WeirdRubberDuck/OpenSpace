@@ -113,7 +113,7 @@ private:
     properties::BoolProperty _applyStopBehaviorWhenIdle;
     
     // Used for setting speed inside DistanceSpeed
-    properties::DoubleProperty _speedFactor;
+    properties::DoubleProperty _distanceSpeedFactor;
 
     properties::StringListProperty _relevantNodeTags;
 

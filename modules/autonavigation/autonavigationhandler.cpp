@@ -76,7 +76,7 @@ namespace {
         "If enabled, the camera is controlled using the default stop behavior even when no path is playing."
     };
 
-    constexpr const openspace::properties::Property::PropertyInfo SpeedParameterInfo = {
+    constexpr const openspace::properties::Property::PropertyInfo DistanceSpeedFactorInfo = {
         "SppedParameterInfo",
         "Speed Parameter Info",
         "Parameter that regulates sped"
@@ -99,7 +99,7 @@ AutoNavigationHandler::AutoNavigationHandler()
     , _stopAtTargetsPerDefault(StopAtTargetsPerDefaultInfo, false)
     , _defaultStopBehavior(DefaultStopBehaviorInfo, properties::OptionProperty::DisplayType::Dropdown)
     , _applyStopBehaviorWhenIdle(ApplyStopBehaviorWhenIdleInfo, false)
-    , _speedFactor(SpeedParameterInfo, 1.5, 0.0, 3.0)
+    , _distanceSpeedFactor(DistanceSpeedFactorInfo, 1.5, 0.0, 3.0)
     , _relevantNodeTags(RelevantNodeTagsInfo)
 {
     addPropertySubOwner(_atNodeNavigator);
@@ -124,7 +124,7 @@ AutoNavigationHandler::AutoNavigationHandler()
 
     addProperty(_applyStopBehaviorWhenIdle);
 
-    addProperty(_speedFactor);
+    addProperty(_distanceSpeedFactor);
 
     // Add the relevant tags
     _relevantNodeTags = std::vector<std::string>{
@@ -150,7 +150,7 @@ bool AutoNavigationHandler::hasFinished() const {
 }
 
 double AutoNavigationHandler::speedFactor() const {
-    return _speedFactor;
+    return _distanceSpeedFactor;
 }
 const std::vector<SceneGraphNode*>& AutoNavigationHandler::relevantNodes() const {
     return _relevantNodes;
