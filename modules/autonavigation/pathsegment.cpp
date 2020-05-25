@@ -84,12 +84,12 @@ CameraPose PathSegment::traversePath(double dt) {
     }
     
     _progressedTime += dt;
-    double RelativeTimeToDuration = _progressedTime / _duration;
+    double relativeTimeToDuration = _progressedTime / _duration;
 
     double relativeDistanceToPathLength = _traveledDistance / pathLength();
 
     // Get speed relative curve to curve length
-    double speedRelativeCurveLength = _speedFunction->value(RelativeTimeToDuration, relativeDistanceToPathLength);
+    double speedRelativeCurveLength = _speedFunction->value(relativeTimeToDuration, relativeDistanceToPathLength);
     double displacement = dt * pathLength() * speedRelativeCurveLength / _duration; 
 
     _traveledDistance += displacement;

@@ -36,7 +36,10 @@ public:
     virtual ~SpeedFunction();
 
     // returns the speed refor relative duration or length, t and l should be in range [0,1]
-    virtual double value(double t, double l) = 0;
+    virtual double value(
+        double progressedTimeRelativeDuration, 
+        double progressedLengthRelativeDistance
+    ) = 0;
 };
 
 class CubicDampenedSpeed : public SpeedFunction {

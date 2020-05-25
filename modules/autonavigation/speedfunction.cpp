@@ -58,13 +58,15 @@ double CubicDampenedSpeed::value(double t, double l) {
     // avoid zero speed
     speed += 0.0001; // OBS! This value gets really big for large distances..
 
-    // divide with the integrate of the total speed function
+    // divide with the integral over the total speed function
     return speed / 0.5;
 }
 
 DistanceSpeed::DistanceSpeed(PathCurve* path, std::vector<glm::dvec3> nodeCenters)
     : _path(path)
 {
+    ghoul_assert(nodeCenters.empty(), "At least one node center must be provided!");
+
     // TODO: add validation, at least one node position needed!!
     for (glm::dvec3 nodePos : nodeCenters) {
         _nodeCenters.push_back(nodePos);
@@ -75,14 +77,13 @@ DistanceSpeed::DistanceSpeed(PathCurve* path, std::vector<glm::dvec3> nodeCenter
 double DistanceSpeed::value(double t, double l) {
     AutoNavigationModule* module = global::moduleEngine.module<AutoNavigationModule>();
     AutoNavigationHandler& handler = module->AutoNavigationHandler();
-    double speedFactor = glm::pow(0.1, -handler.speedFactor());
+    double speedFactor = glm::pow(10.0, handler.speedFactor());
 
     glm::dvec3 currentPosition = _path->positionAt(l); 
 
     double distanceToClosestNode = length(_nodeCenters[0] - currentPosition);
-    for (int i = 0; i < _nodeCenters.size(); i++)
-    {
-        double distance = length(_nodeCenters[i] - currentPosition);
+    for (glm::dvec3 nodeCenter : _nodeCenters) {
+        double distance = length(nodeCenter - currentPosition);
         distanceToClosestNode = glm::min(distanceToClosestNode, distance);
     }
 
