@@ -29,6 +29,7 @@
 #include <modules/autonavigation/pathsegment.h>
 #include <openspace/properties/optionproperty.h>
 #include <openspace/properties/propertyowner.h>
+#include <openspace/properties/stringlistproperty.h>
 #include <ghoul/glm.h>
 
 namespace openspace {
@@ -51,6 +52,7 @@ public:
     Camera* camera() const;
     const SceneGraphNode* anchor() const;
     bool hasFinished() const;
+    const std::vector<SceneGraphNode*>& relevantNodes() const;
 
     void updateCamera(double deltaTime);
     void createPath(PathSpecification& spec);
@@ -79,6 +81,8 @@ private:
 
     Waypoint computeDefaultWaypoint(const TargetNodeInstruction* ins);
 
+    std::vector<SceneGraphNode*> findRelevantNodes();
+
     // this list essentially represents the camera path
     std::vector<std::unique_ptr<PathSegment>> _pathSegments;
 
@@ -97,6 +101,8 @@ private:
     bool _isPlaying = false;
     unsigned int _currentSegmentIndex = 0;
 
+    std::vector<SceneGraphNode*> _relevantNodes;
+
     properties::OptionProperty _defaultCurveOption;
     properties::BoolProperty _includeRoll;
     properties::BoolProperty _stopAtTargetsPerDefault;
@@ -105,8 +111,12 @@ private:
     // for testing pause behaviors. 
     // TODO: remove later, if it causes problems with regular navigation
     properties::BoolProperty _applyStopBehaviorWhenIdle;
-
+    
+    // Used for setting speed inside DistanceSpeed
     properties::DoubleProperty _speedFactor;
+
+    properties::StringListProperty _relevantNodeTags;
+
 };
 
 } // namespace openspace::autonavigation

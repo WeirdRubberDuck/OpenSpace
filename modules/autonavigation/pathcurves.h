@@ -33,6 +33,7 @@ namespace openspace::autonavigation {
 
 // TODO: move to pathsegment.h instead
 enum CurveType {
+    AvoidCollision,
     Bezier3,
     Linear,
 };
@@ -67,6 +68,8 @@ protected:
     std::vector<double> _lengthSums;
     double _totalLength;
 };
+
+// TODO: Put path curve classes in separate files
 
 class Bezier3Curve : public PathCurve {
 public:

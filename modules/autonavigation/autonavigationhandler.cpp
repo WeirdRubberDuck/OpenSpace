@@ -30,6 +30,8 @@
 #include <openspace/engine/globals.h>
 #include <openspace/engine/windowdelegate.h>
 #include <openspace/interaction/navigationhandler.h>
+#include <openspace/rendering/renderengine.h>
+#include <openspace/scene/scene.h>
 #include <openspace/scene/scenegraphnode.h>
 #include <openspace/query/query.h>
 #include <openspace/util/camera.h>
@@ -38,6 +40,7 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <algorithm>
+#include <vector>
 
 namespace {
     constexpr const char* _loggerCat = "AutoNavigationHandler";
@@ -74,9 +77,15 @@ namespace {
     };
 
     constexpr const openspace::properties::Property::PropertyInfo SpeedParameterInfo = {
-       "SppedParameterInfo",
-       "Speed Parameter Info",
-       "Parameter that regulates sped"
+        "SppedParameterInfo",
+        "Speed Parameter Info",
+        "Parameter that regulates sped"
+    };
+
+    constexpr const openspace::properties::Property::PropertyInfo RelevantNodeTagsInfo = {
+        "RelevantNodeTags",
+        "Relevant Node Tags",
+        "List of tags for the nodes that are relevant for path creation, for example when avoiding collisions."
     };
 
 } // namespace
@@ -91,10 +100,12 @@ AutoNavigationHandler::AutoNavigationHandler()
     , _defaultStopBehavior(DefaultStopBehaviorInfo, properties::OptionProperty::DisplayType::Dropdown)
     , _applyStopBehaviorWhenIdle(ApplyStopBehaviorWhenIdleInfo, false)
     , _speedFactor(SpeedParameterInfo, 1.5, 0.0, 3.0)
+    , _relevantNodeTags(RelevantNodeTagsInfo)
 {
     addPropertySubOwner(_atNodeNavigator);
 
     _defaultCurveOption.addOptions({
+        { CurveType::AvoidCollision, "AvoidCollision" },
         { CurveType::Bezier3, "Bezier3" },
         { CurveType::Linear, "Linear" }
     });
@@ -114,6 +125,13 @@ AutoNavigationHandler::AutoNavigationHandler()
     addProperty(_applyStopBehaviorWhenIdle);
 
     addProperty(_speedFactor);
+
+    // Add the relevant tags
+    _relevantNodeTags = std::vector<std::string>{
+        "planet_solarSystem",
+        "moon_solarSystem"
+    };;
+    addProperty(_relevantNodeTags);
 }
 
 AutoNavigationHandler::~AutoNavigationHandler() {} // NOLINT
@@ -133,6 +151,9 @@ bool AutoNavigationHandler::hasFinished() const {
 
 double AutoNavigationHandler::speedFactor() const {
     return _speedFactor;
+}
+const std::vector<SceneGraphNode*>& AutoNavigationHandler::relevantNodes() const {
+    return _relevantNodes;
 }
 
 void AutoNavigationHandler::updateCamera(double deltaTime) {
@@ -193,6 +214,10 @@ void AutoNavigationHandler::updateCamera(double deltaTime) {
 
 void AutoNavigationHandler::createPath(PathSpecification& spec) {
     clearPath();
+
+    // TODO: do this in some initialize function instead, and update
+    // when list of tags is updated. Also depends on scene change?
+    _relevantNodes = findRelevantNodes();
 
     if (spec.stopAtTargetsSpecified()) {
         _stopAtTargetsPerDefault = spec.stopAtTargets();
@@ -530,6 +555,33 @@ Waypoint AutoNavigationHandler::computeDefaultWaypoint(const TargetNodeInstructi
     );
 
     return Waypoint{ targetPos, targetRot, ins->nodeIdentifier };
+}
+
+std::vector<SceneGraphNode*> AutoNavigationHandler::findRelevantNodes() {
+    const std::vector<SceneGraphNode*>& allNodes =
+        global::renderEngine.scene()->allSceneGraphNodes();
+
+    const std::vector<std::string> relevantTags = _relevantNodeTags;
+
+    if (allNodes.empty() || relevantTags.empty()) 
+        return std::vector<SceneGraphNode*>{};
+
+    auto isRelevant = [&](const SceneGraphNode* node) {
+        const std::vector<std::string> tags = node->tags();
+        auto result = std::find_first_of(relevantTags.begin(), relevantTags.end(), tags.begin(), tags.end());
+
+        // does not match any tags => not interesting
+        if (result == relevantTags.end()) {
+            return false;
+        }
+
+        return node->renderable() && (node->boundingSphere() > 0.0);
+    };
+
+    std::vector<SceneGraphNode*> resultingNodes{};
+    std::copy_if(allNodes.begin(), allNodes.end(), std::back_inserter(resultingNodes), isRelevant);
+
+    return resultingNodes;
 }
 
 } // namespace openspace::autonavigation

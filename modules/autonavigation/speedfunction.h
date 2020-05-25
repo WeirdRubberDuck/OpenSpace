@@ -41,11 +41,8 @@ public:
 
 class CubicDampenedSpeed : public SpeedFunction {
 public:
-    CubicDampenedSpeed(double pathLength);
+    CubicDampenedSpeed() = default;
     double value(double t, double l) override;
-
-private:
-    double _pathLength;
 }; 
 
 class DistanceSpeed : public SpeedFunction {

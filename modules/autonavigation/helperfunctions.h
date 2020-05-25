@@ -39,6 +39,11 @@ namespace openspace::autonavigation::helpers {
 
     glm::dquat getLookAtQuaternion(glm::dvec3 eye, glm::dvec3 center, glm::dvec3 up);
 
+    bool lineSphereIntersection(glm::dvec3 linePoint1, glm::dvec3 linePoint2,
+        glm::dvec3 sphereCenter, double spehereRadius, glm::dvec3& intersectionPoint);
+
+    bool isPointInsideSphere(const glm::dvec3& p, const glm::dvec3& c, double r);
+
 } // namespace
 
 namespace openspace::autonavigation::interpolation {
@@ -51,11 +56,19 @@ namespace openspace::autonavigation::interpolation {
     glm::dvec3 catmullRom(double t, const glm::dvec3& p0, const glm::dvec3& p1,
         const glm::dvec3& p2, const glm::dvec3& p3, double alpha = 0.5);
 
-
     glm::dvec3 cubicBezier(double t, const glm::dvec3& cp1, const glm::dvec3& cp2,
         const glm::dvec3& cp3, const glm::dvec3& cp4);
 
     glm::dvec3 linear(double t, const glm::dvec3& cp1, const glm::dvec3& cp2);
+
+    glm::dvec3 hermite(double t, const glm::dvec3 &cp1, const glm::dvec3 &cp2,
+        const glm::dvec3 &tangent1, const glm::dvec3 &tangent2);
+
+    glm::dvec3 piecewiseCubicBezier(double t, const std::vector<glm::dvec3>& points,
+        const std::vector<double>& tKnots);
+
+    glm::dvec3 piecewiseLinear(double t, const std::vector<glm::dvec3>& points, 
+        const std::vector<double>& tKnots);
 
 } // namespace
 #endif

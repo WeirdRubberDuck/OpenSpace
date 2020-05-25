@@ -38,9 +38,6 @@ namespace openspace::autonavigation {
 
 SpeedFunction::~SpeedFunction() {}
 
-CubicDampenedSpeed::CubicDampenedSpeed(double pathLength) 
-    : _pathLength(pathLength) { }
-
 double CubicDampenedSpeed::value(double t, double l) {
     ghoul_assert(t >= 0.0 && t <= 1.0, "Variable t out of range [0,1]");
 
@@ -59,12 +56,9 @@ double CubicDampenedSpeed::value(double t, double l) {
     }
 
     // avoid zero speed
-    speed += 0.0000001; // OBS! This value gets really big for large distances..
-    //return speed;
+    speed += 0.0001; // OBS! This value gets really big for large distances..
 
-    // TODO: compare to l and ensure that end is reached
-
-    //the integrated sum of a symmetric easeinout function is 0.5
+    // divide with the integrate of the total speed function
     return speed / 0.5;
 }
 

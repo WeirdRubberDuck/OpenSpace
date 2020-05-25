@@ -25,6 +25,7 @@
 #include <modules/autonavigation/pathsegment.h>
 
 #include <modules/autonavigation/autonavigationmodule.h>
+#include <modules/autonavigation/avoidcollisioncurve.h>
 #include <modules/autonavigation/pathcurves.h>
 #include <modules/autonavigation/rotationinterpolator.h>
 #include <modules/autonavigation/speedfunction.h>
@@ -82,14 +83,15 @@ CameraPose PathSegment::traversePath(double dt) {
         return _start.pose;
     }
     
+    _progressedTime += dt;
     double RelativeTimeToDuration = _progressedTime / _duration;
+
     double relativeDistanceToPathLength = _traveledDistance / pathLength();
 
     // Get speed relative curve to curve length
     double speedRelativeCurveLength = _speedFunction->value(RelativeTimeToDuration, relativeDistanceToPathLength);
     double displacement = dt * pathLength() * speedRelativeCurveLength / _duration; 
 
-    _progressedTime += dt;
     _traveledDistance += displacement;
 
     double newRelativeDistanceToPathLength = _traveledDistance / pathLength();
@@ -140,6 +142,15 @@ void PathSegment::initCurve() {
 
     switch (_curveType) 
     {
+    case CurveType::AvoidCollision:
+        _curve = std::make_unique<AvoidCollisionCurve>(_start, _end);
+        _rotationInterpolator = std::make_unique<EasedSlerpInterpolator>(
+            _start.rotation(),
+            _end.rotation()
+            );
+        _speedFunction = std::make_unique<CubicDampenedSpeed>();
+        break;
+
     case CurveType::Bezier3:
         _curve = std::make_unique<Bezier3Curve>(_start, _end);
         _rotationInterpolator = std::make_unique<LookAtInterpolator>(
@@ -149,7 +160,7 @@ void PathSegment::initCurve() {
             _end.node()->worldPosition(),
             _curve.get()
         );
-        _speedFunction = std::make_unique<CubicDampenedSpeed>(_curve->length()); 
+        _speedFunction = std::make_unique<CubicDampenedSpeed>(); 
         break;
 
     case CurveType::Linear:
