@@ -78,8 +78,8 @@ namespace {
 
     constexpr const openspace::properties::Property::PropertyInfo DistanceSpeedFactorInfo = {
         "SppedParameterInfo",
-        "Speed Parameter Info",
-        "Parameter that regulates sped"
+        "Speed Parameter",
+        "Parameter that regulates speed. TODO: explain how it works"
     };
 
     constexpr const openspace::properties::Property::PropertyInfo RelevantNodeTagsInfo = {
