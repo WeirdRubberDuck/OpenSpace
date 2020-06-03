@@ -26,6 +26,7 @@
 #define __OPENSPACE_MODULE_AUTONAVIGATION___SPEEDFUNCTION___H__
 
 #include <modules/autonavigation/pathcurves.h>
+#include <openspace/scene/scenegraphnode.h>
 
 namespace openspace::autonavigation {
 
@@ -50,11 +51,11 @@ public:
 
 class DistanceSpeed : public SpeedFunction {
 public:
-    DistanceSpeed(PathCurve* path, std::vector<glm::dvec3> nodeCenters);
+    DistanceSpeed(PathCurve* path, std::vector<SceneGraphNode*> nodeCenters);
     double value(double t, double l) override;
 
 private:
-    std::vector<glm::dvec3> _nodeCenters;
+    std::vector<SceneGraphNode*> _nodes;
     PathCurve* _path = nullptr;
 };
 

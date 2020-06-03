@@ -62,14 +62,14 @@ double CubicDampenedSpeed::value(double t, double l) {
     return speed / 0.5;
 }
 
-DistanceSpeed::DistanceSpeed(PathCurve* path, std::vector<glm::dvec3> nodeCenters)
+DistanceSpeed::DistanceSpeed(PathCurve* path, std::vector<SceneGraphNode*> nodes)
     : _path(path)
 {
-    ghoul_assert(nodeCenters.empty(), "At least one node center must be provided!");
+    ghoul_assert(nodes.empty(), "At least one node must be provided!");
 
     // TODO: add validation, at least one node position needed!!
-    for (glm::dvec3 nodePos : nodeCenters) {
-        _nodeCenters.push_back(nodePos);
+    for (SceneGraphNode* n : nodes) {
+        _nodes.push_back(n);
     }
 };
 
@@ -81,9 +81,16 @@ double DistanceSpeed::value(double t, double l) {
 
     glm::dvec3 currentPosition = _path->positionAt(l); 
 
-    double distanceToClosestNode = length(_nodeCenters[0] - currentPosition);
-    for (glm::dvec3 nodeCenter : _nodeCenters) {
-        double distance = length(nodeCenter - currentPosition);
+    auto getDistanceToNode = [&](SceneGraphNode* n, glm::dvec3 position) {
+        double r = n->boundingSphere();
+        glm::dvec3 nodeCenterToPosition = position - n->worldPosition();
+        glm::dvec3 surfacePosition = n->worldPosition() + r * glm::normalize(nodeCenterToPosition);
+        return glm::length(position - surfacePosition);
+    };
+
+    double distanceToClosestNode = getDistanceToNode(_nodes[0], currentPosition);
+    for (SceneGraphNode* n : _nodes) {
+        double distance = getDistanceToNode(n, currentPosition);
         distanceToClosestNode = glm::min(distanceToClosestNode, distance);
     }
 

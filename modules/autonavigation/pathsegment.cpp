@@ -135,9 +135,9 @@ void PathSegment::initCurve() {
     _curve.reset();
 
     // TODO: add more positions to check against with some get function?
-    std::vector<glm::dvec3> nodeCenters = {
-        _start.node()->worldPosition(),
-        _end.node()->worldPosition()
+    std::vector<SceneGraphNode*> nodes = {
+        _start.node(),
+        _end.node()
     };
 
     switch (_curveType) 
@@ -169,7 +169,7 @@ void PathSegment::initCurve() {
             _start.rotation(), 
             _end.rotation()
         );
-        _speedFunction = std::make_unique<DistanceSpeed>(_curve.get(), nodeCenters);
+        _speedFunction = std::make_unique<DistanceSpeed>(_curve.get(), nodes);
         break;
 
     default:
