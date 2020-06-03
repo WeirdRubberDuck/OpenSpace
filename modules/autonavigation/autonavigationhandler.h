@@ -76,9 +76,10 @@ private:
 
     void applyStopBehaviour(double deltaTime);
 
-    void addSegment(Waypoint& waypoint, const Instruction* ins);
-    void addStopDetails(const Waypoint& endWaypoint, const Instruction* ins);
+    void addSegment(Instruction* ins, int index);
+    void addStopDetails(const Instruction* ins);
 
+    SceneGraphNode* findNodeNearTarget(const SceneGraphNode* node);
     Waypoint computeDefaultWaypoint(const TargetNodeInstruction* ins);
 
     std::vector<SceneGraphNode*> findRelevantNodes();
@@ -117,6 +118,7 @@ private:
 
     properties::StringListProperty _relevantNodeTags;
 
+    properties::FloatProperty _defaultPositionOffsetAngle;
 };
 
 } // namespace openspace::autonavigation

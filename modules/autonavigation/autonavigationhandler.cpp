@@ -88,6 +88,14 @@ namespace {
         "List of tags for the nodes that are relevant for path creation, for example when avoiding collisions."
     };
 
+    constexpr const openspace::properties::Property::PropertyInfo DefaultPositionOffsetAngleInfo = {
+        "DefaultPositionOffsetAngle",
+        "Default Position Offset Angle",
+        "Used for creating a default position at a target node. The angle (in degrees) "
+        "specifies the deviation from the line connecting the target node and the sun, in "
+        "the direction of the camera position at the start of the path."
+    };
+
 } // namespace
 
 namespace openspace::autonavigation {
@@ -101,6 +109,7 @@ AutoNavigationHandler::AutoNavigationHandler()
     , _applyStopBehaviorWhenIdle(ApplyStopBehaviorWhenIdleInfo, false)
     , _distanceSpeedFactor(DistanceSpeedFactorInfo, 1.5, 0.0, 3.0)
     , _relevantNodeTags(RelevantNodeTagsInfo)
+    , _defaultPositionOffsetAngle(DefaultPositionOffsetAngleInfo, 30.0f, -90.0f, 90.0f)
 {
     addPropertySubOwner(_atNodeNavigator);
 
@@ -132,6 +141,8 @@ AutoNavigationHandler::AutoNavigationHandler()
         "moon_solarSystem"
     };;
     addProperty(_relevantNodeTags);
+
+    addProperty(_defaultPositionOffsetAngle);
 }
 
 AutoNavigationHandler::~AutoNavigationHandler() {} // NOLINT
@@ -229,28 +240,11 @@ void AutoNavigationHandler::createPath(PathSpecification& spec) {
     for (int i = 0; i < nrInstructions; i++) {
         Instruction* instruction = spec.instruction(i);
         if (instruction) {
-            std::vector<Waypoint> waypoints = instruction->getWaypoints();
-
-            if (waypoints.size() == 0) {
-                TargetNodeInstruction* targetNodeIns = dynamic_cast<TargetNodeInstruction*>(instruction);
-                if (targetNodeIns) {
-                    // TODO: allow curves to compute default waypoint instead
-                    Waypoint wp = computeDefaultWaypoint(targetNodeIns);
-                    addSegment(wp, instruction);
-                }
-                else {
-                    LWARNING(fmt::format("No path segment was created from instruction {}. No waypoints could be created.", i));
-                    return;
-                }
-            }
-            else {
-                // TODO: allow for a list of waypoints
-                addSegment(waypoints[0], instruction);
-            }
+            addSegment(instruction, i);
 
             // Add info about stops between segments
             if (i < nrInstructions - 1) {
-                addStopDetails(lastWayPoint(), instruction);
+                addStopDetails(instruction);
             }
         }
     }
@@ -338,6 +332,7 @@ std::vector<glm::dvec3> AutoNavigationHandler::getCurvePositions(int nPerSegment
             glm::dvec3 position = p->interpolatedPose(u).position;
             positions.push_back(position);
         }
+        positions.push_back(p->interpolatedPose(1.0).position);
     }
 
     return positions;
@@ -474,19 +469,41 @@ void AutoNavigationHandler::applyStopBehaviour(double deltaTime) {
     }
 }
 
-void AutoNavigationHandler::addSegment(Waypoint& waypoint, const Instruction* ins){
+void AutoNavigationHandler::addSegment(Instruction* ins, int index) {
     // TODO: Improve how curve types are handled
     const int curveType = _defaultCurveOption;
 
+    std::vector<Waypoint> waypoints = ins->getWaypoints();
+    Waypoint waypointToAdd;
+
+    if (waypoints.size() == 0) {
+        TargetNodeInstruction* targetNodeIns = dynamic_cast<TargetNodeInstruction*>(ins);
+        if (targetNodeIns) {
+            // TODO: allow curves to compute default waypoint instead
+            waypointToAdd = computeDefaultWaypoint(targetNodeIns);
+        }
+        else {
+            LWARNING(fmt::format(
+                "No path segment was created from instruction {}. No waypoints could be created.",
+                index
+            ));
+            return;
+        }
+    }
+    else {
+        // TODO: allow for a list of waypoints
+        waypointToAdd = waypoints[0];
+    }
+
     _pathSegments.push_back(std::make_unique<PathSegment>(
         lastWayPoint(), 
-        waypoint, 
+        waypointToAdd,
         CurveType(curveType), 
         ins->duration
     ));
 }
 
-void AutoNavigationHandler::addStopDetails(const Waypoint& endWaypoint, const Instruction* ins) {
+void AutoNavigationHandler::addStopDetails(const Instruction* ins) {
     StopDetails stopEntry;
     stopEntry.shouldStop = _stopAtTargetsPerDefault.value();
 
@@ -497,7 +514,7 @@ void AutoNavigationHandler::addStopDetails(const Waypoint& endWaypoint, const In
     if (stopEntry.shouldStop) {
         stopEntry.duration = ins->stopDuration;
 
-        std::string anchorIdentifier = endWaypoint.nodeDetails.identifier;
+        std::string anchorIdentifier = lastWayPoint().nodeDetails.identifier;
         stopEntry.behavior = AtNodeNavigator::Behavior(_defaultStopBehavior.value()); 
 
         if (ins->stopBehavior.has_value()) {
@@ -530,24 +547,74 @@ void AutoNavigationHandler::addStopDetails(const Waypoint& endWaypoint, const In
     _stops.push_back(stopEntry);
 }
 
+// Test if the node lies within a given proximity radius of any relevant node in the scene
+SceneGraphNode* AutoNavigationHandler::findNodeNearTarget(const SceneGraphNode* node) {
+    glm::dvec3 nodePosition = node->worldPosition();
+    std::string nodeId = node->identifier();
+
+    const float proximityRadiusFactor = 3.0f;
+
+    for (SceneGraphNode* n : _relevantNodes) {
+        if (n->identifier() == nodeId)
+            continue;
+
+        float proximityRadius = proximityRadiusFactor * n->boundingSphere();
+        const glm::dmat4 invModelTransform = glm::inverse(n->modelTransform());
+        glm::dvec3 positionModelCoords = invModelTransform * glm::dvec4(nodePosition, 1.0);
+
+        bool isClose = helpers::isPointInsideSphere(
+            positionModelCoords, 
+            glm::dvec3(0.0, 0.0, 0.0), 
+            proximityRadius
+        );
+
+        if (isClose) 
+            return n;
+    }
+
+    return nullptr;
+}
+
 // OBS! The desired default waypoint may vary between curve types. 
-// TODO: let the curves compute the default positions instead
+// TODO: let the curves update the default position if no exact position is required
 Waypoint AutoNavigationHandler::computeDefaultWaypoint(const TargetNodeInstruction* ins) {
     SceneGraphNode* targetNode = sceneGraphNode(ins->nodeIdentifier);
     if (!targetNode) {
         LERROR(fmt::format("Could not find target node '{}'", ins->nodeIdentifier));
         return Waypoint();
     }
+
     glm::dvec3 nodePos = targetNode->worldPosition();
-    glm::dvec3 nodeToPrev = lastWayPoint().position() - nodePos;
+
+    glm::dvec3 stepDirection{};
+    SceneGraphNode* closeNode = findNodeNearTarget(targetNode);
+
+    if (closeNode) {
+        // If the node is close to another node in the scene, make sure that the
+        // position is set to minimize risk of collision
+        stepDirection = glm::normalize(nodePos - closeNode->worldPosition());
+    } 
+    else {
+        // Go to a point that is being lit up by the sun, slightly offsetted from sun direction
+        glm::dvec3 sunPos = glm::dvec3(0.0, 0.0, 0.0);
+        glm::dvec3 prevPos = lastWayPoint().position();
+        glm::dvec3 targetToPrev = prevPos - nodePos;
+        glm::dvec3 targetToSun = sunPos - nodePos;
+        glm::dvec3 axis = glm::normalize(glm::cross(targetToPrev, targetToSun));
+        const double angle = (double)glm::radians((-1.0f)*_defaultPositionOffsetAngle);
+        glm::dquat offsetRotation = angleAxis(angle, axis);
+
+        stepDirection = glm::normalize(offsetRotation * targetToSun);
+    }
 
     const double radius = WaypointNodeDetails::findValidBoundingSphere(targetNode);
-    const double defaultHeight = 2 * radius;
+    const double defaultHeight = 2.0 * radius;
 
     bool hasHeight = ins->height.has_value();
     double height = hasHeight ? ins->height.value() : defaultHeight;
 
-    glm::dvec3 targetPos = nodePos + glm::normalize(nodeToPrev) * (radius + height);
+    glm::dvec3 targetPos = nodePos + stepDirection * (radius + height);
+
     glm::dquat targetRot = helpers::getLookAtQuaternion(
         targetPos,
         targetNode->worldPosition(),
